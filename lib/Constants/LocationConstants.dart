@@ -1,0 +1,4 @@
+enum LocationConstant {
+  CurrentPosition,
+  LastReadPosition,
+}
