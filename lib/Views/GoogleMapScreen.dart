@@ -1,11 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:function_app/Services/LocationServices.dart';
-import 'package:function_app/Constants/LocationConstants.dart';
+import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Views/loginScreen.dart';
+import 'package:function_app/StateManagement/Data.dart';
 
 class GoogleMapScreen extends StatefulWidget {
   static final String screenId = 'servGoogleMapScreen';
@@ -18,7 +19,6 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late GoogleMapController mapController;
   late LatLng latitudeLongitude = LatLng(6.927079, 79.861244);
   late LatLng currentCordinates;
-  Set<Marker> markers = {};
 
   getCurrentLocation() async {
     try {
@@ -31,7 +31,9 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
           markerId: MarkerId('Current'),
           position: LatLng(initLocation.latitude, initLocation.longitude),
         );
-        markers.add(mark);
+        print(initLocation.latitude);
+        print(initLocation.longitude);
+        Provider.of<Data>(context, listen: false).markers.add(mark);
       });
     } on LocationServiceDisabledException catch (e) {
       dialogLocationError(
@@ -86,6 +88,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
     return SafeArea(
       child: Container(
         child: GoogleMap(
+          // mapType: MapType.hybrid,
           myLocationEnabled: true,
           myLocationButtonEnabled: true,
           onMapCreated: onMapCreatedFunction,
@@ -93,9 +96,16 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
             target: latitudeLongitude,
             zoom: 18.0,
           ),
-          markers: markers,
+          markers: Provider.of<Data>(context).markers,
         ),
       ),
     );
   }
 }
+
+/*
+Future<void> _goToTheLake() async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+  }
+ */

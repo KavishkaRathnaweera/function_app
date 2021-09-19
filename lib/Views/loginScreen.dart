@@ -1,10 +1,12 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:function_app/PostmanScreen.dart';
+import 'package:function_app/DeliveryKeeper.dart';
 import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
-import 'package:function_app/Constants/ReusableButton.dart';
+import 'package:function_app/Components/ReusableButton.dart';
 import 'package:function_app/Constants.dart';
+import 'package:function_app/Components/Alerts.dart';
 
 class LoginScreen extends StatefulWidget {
   static final String screenId = 'loginScreen';
@@ -14,8 +16,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late String email;
-  late String password;
+  final _auth = FirebaseAuth.instance;
+  late String userEmail;
+  late String userPassword;
   bool showSpinner = false;
 
   @override
@@ -42,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     tag: 'SL Post',
                     child: Container(
                       height: 200.0,
-                      child: Image.asset('images/national.png'),
+                      child: Image.asset('images/App_Icon.png'),
                     ),
                   ),
                 ),
@@ -64,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   textAlign: TextAlign.center,
                   onChanged: (value) {
-                    email = value;
+                    userEmail = value;
                   },
                   decoration: kTextDecoration.copyWith(
                     hintText: 'Enter your email',
@@ -77,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                   obscureText: true,
                   onChanged: (value) {
-                    password = value;
+                    userPassword = value;
                   },
                   decoration: kTextDecoration.copyWith(
                     hintText: 'Enter your password.',
@@ -89,7 +92,32 @@ class _LoginScreenState extends State<LoginScreen> {
                 ReusableButton(
                   buttonColor: Colors.red.shade900,
                   onPressed: () async {
-                    Navigator.pushNamed(context, PostmanScreen.screenId);
+                    try {
+                      UserCredential userCredential =
+                          await _auth.signInWithEmailAndPassword(
+                        email: userEmail,
+                        password: userPassword,
+                      );
+                      if (userCredential.user!.email == 'postman@gmail.com') {
+                        Navigator.pushNamed(context, PostmanScreen.screenId);
+                      } else if (userCredential.user!.email ==
+                          'deliver@gmail.com') {
+                        Navigator.pushNamed(context, DeliveryScreen.screenId);
+                      }
+                    } on FirebaseAuthException catch (e) {
+                      if (e.code == 'user-not-found') {
+                        AlertBox.showMyDialog(
+                            context, 'Error!', 'User email is not valid', () {
+                          Navigator.of(context).pop();
+                        });
+                      } else if (e.code == 'wrong-password') {
+                        AlertBox.showMyDialog(
+                            context, 'Error!', 'Password is incorrect', () {
+                          Navigator.of(context).pop();
+                        });
+                      }
+                    }
+
                     // setState(() {
                     //   showSpinner = true;
                     // });

@@ -1,4 +1,0 @@
-enum LocationConstant {
-  CurrentPosition,
-  LastReadPosition,
-}

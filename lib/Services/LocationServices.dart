@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
-import 'package:function_app/Constants/LocationConstants.dart';
+import 'package:function_app/Components/ConstantFile.dart';
 
 class LocationService implements Exception {
   static Future<dynamic> getPosition(LocationConstant serviceName) async {

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "931799860828",
+    "firebase_url": "https://post-office-mis-505cc-default-rtdb.firebaseio.com",
+    "project_id": "post-office-mis-505cc",
+    "storage_bucket": "post-office-mis-505cc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931799860828:android:f520ec61bec8ee9d0a8899",
+        "android_client_info": {
+          "package_name": "com.example.function_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "931799860828-mv6329ajc01f2ngo4n50kgoga2lnkcp9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEPvTaiOjgpfPlWtoV4aX-rfh6fEDHUf4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "931799860828-mv6329ajc01f2ngo4n50kgoga2lnkcp9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
