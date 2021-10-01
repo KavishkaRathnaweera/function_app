@@ -3,8 +3,27 @@ import 'package:flutter/material.dart';
 import 'Components/DrawerChildDelivery.dart';
 import 'package:function_app/Components/TextWrite.dart';
 
-class DeliveryScreen extends StatelessWidget {
+import 'Views/loginScreen.dart';
+
+class DeliveryScreen extends StatefulWidget {
   static final String screenId = 'deliveryScreen';
+
+  @override
+  _DeliveryScreenState createState() => _DeliveryScreenState();
+}
+
+class _DeliveryScreenState extends State<DeliveryScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      Navigator.popUntil(
+          context, ModalRoute.withName('${LoginScreen.screenId}'));
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

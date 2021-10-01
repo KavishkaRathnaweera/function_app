@@ -1,12 +1,18 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:function_app/Components/ConstantFile.dart';
+import 'package:function_app/Module/User.dart';
+import 'package:function_app/Services/NetworkServices.dart';
 import 'package:function_app/PostmanScreen.dart';
 import 'package:function_app/DeliveryKeeper.dart';
+import 'package:function_app/StateManagement/Data.dart';
+import 'package:function_app/StateManagement/PostData.dart';
 import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 import 'package:function_app/Components/ReusableButton.dart';
 import 'package:function_app/Constants.dart';
 import 'package:function_app/Components/Alerts.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   static final String screenId = 'loginScreen';
@@ -17,20 +23,24 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
-  late String userEmail;
-  late String userPassword;
+  late String userEmail = '';
+  late String userPassword = '';
   bool showSpinner = false;
+  var message;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          color: Colors.red.shade900,
+        ),
         inAsyncCall: showSpinner,
         //inAsyncCall: showSpinner,
         child: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('images/background.jpg'),
+              image: AssetImage('images/postOffice2.png'),
               fit: BoxFit.fill,
             ),
           ),
@@ -44,7 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Hero(
                     tag: 'SL Post',
                     child: Container(
-                      height: 200.0,
+                      height: 50.0,
+                      width: 50,
                       child: Image.asset('images/App_Icon.png'),
                     ),
                   ),
@@ -53,9 +64,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   'Sri Lanka Post',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 50.0,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.white,
+                      fontSize: 40.0,
+                      color: Colors.black,
+                      letterSpacing: 10.0,
                       fontWeight: FontWeight.w900),
                 ),
                 Flexible(
@@ -64,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 TextField(
+                  key: Key('textFieldEmail'),
                   keyboardType: TextInputType.emailAddress,
                   textAlign: TextAlign.center,
                   onChanged: (value) {
@@ -77,6 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 8.0,
                 ),
                 TextField(
+                  key: Key('textFieldPassword'),
                   textAlign: TextAlign.center,
                   obscureText: true,
                   onChanged: (value) {
@@ -92,47 +105,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ReusableButton(
                   buttonColor: Colors.red.shade900,
                   onPressed: () async {
-                    try {
-                      UserCredential userCredential =
-                          await _auth.signInWithEmailAndPassword(
-                        email: userEmail,
-                        password: userPassword,
-                      );
-                      if (userCredential.user!.email == 'postman@gmail.com') {
-                        Navigator.pushNamed(context, PostmanScreen.screenId);
-                      } else if (userCredential.user!.email ==
-                          'deliver@gmail.com') {
-                        Navigator.pushNamed(context, DeliveryScreen.screenId);
-                      }
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'user-not-found') {
-                        AlertBox.showMyDialog(
-                            context, 'Error!', 'User email is not valid', () {
-                          Navigator.of(context).pop();
-                        });
-                      } else if (e.code == 'wrong-password') {
-                        AlertBox.showMyDialog(
-                            context, 'Error!', 'Password is incorrect', () {
-                          Navigator.of(context).pop();
-                        });
-                      }
+                    if (validateEmailPassword(userEmail, userPassword)) {
+                      handleUserLogin();
                     }
-
-                    // setState(() {
-                    //   showSpinner = true;
-                    // });
-                    // try {
-                    //   final user = await _auth.signInWithEmailAndPassword(
-                    //       email: email, password: password);
-                    //   if (user != null) {
-                    //     Navigator.pushNamed(context, ChatScreen.screenId);
-                    //   }
-                    //   setState(() {
-                    //     showSpinner = false;
-                    //   });
-                    // } catch (e) {
-                    //   print(e);
-                    // }
                   },
                   label: 'Log In',
                 ),
@@ -143,11 +118,130 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
 
-// decoration: BoxDecoration(
-// image: DecorationImage(
-// image: AssetImage('images/Cover.jpg'),
-// fit: BoxFit.fill,
-// ),
-// ),
+  bool validateEmailPassword(String email, String password) {
+    if (email == null || email.isEmpty) {
+      AlertBox.showMyDialog(context, 'Error!', 'Please Enter email', () {
+        Navigator.of(context).pop();
+      }, Colors.red[900]);
+      return false;
+    } else if (password == null || password.isEmpty) {
+      AlertBox.showMyDialog(context, 'Error!', 'Please Enter password', () {
+        Navigator.of(context).pop();
+      }, Colors.red[900]);
+      return false;
+    } else {
+      const pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+      final regExp = RegExp(pattern);
+      if (!regExp.hasMatch(email)) {
+        AlertBox.showMyDialog(context, 'Error!', 'Email is invalid', () {
+          Navigator.of(context).pop();
+        }, Colors.red[900]);
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+
+  handleUserLogin() async {
+    setState(() {
+      showSpinner = true;
+    });
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: userEmail,
+        password: userPassword,
+      );
+      final userDet =
+          await NetworkService().getUserRole(userCredential.user!.uid);
+      print(userDet['firstName']);
+      Provider.of<Data>(context, listen: false).userDetails = AppUser(
+        lastName: userDet['lastName'],
+        firstName: userDet['firstName'],
+        nic: userDet['NIC'],
+      );
+      if (userDet['role'] == 'postman') {
+        final normalPostListDB = await NetworkService()
+            .getServices(PostType.NormalPost, userCredential.user!.uid);
+        final registeredPostListDB = await NetworkService()
+            .getServices(PostType.RegisteredPost, userCredential.user!.uid);
+        final packagePostListDB = await NetworkService()
+            .getServices(PostType.Package, userCredential.user!.uid);
+
+        final normalPostUndelListDB = await NetworkService()
+            .getServicesUndeliverable(
+                PostType.NormalPost, userCredential.user!.uid);
+        final registeredPostUndelListDB = await NetworkService()
+            .getServicesUndeliverable(
+                PostType.RegisteredPost, userCredential.user!.uid);
+        final packagePostUndelListDB = await NetworkService()
+            .getServicesUndeliverable(
+                PostType.Package, userCredential.user!.uid);
+
+        final normalPostDeldListDB = await NetworkService()
+            .getServicesDeivered(PostType.NormalPost, userCredential.user!.uid);
+        final registeredPostDeldListDB = await NetworkService()
+            .getServicesDeivered(
+                PostType.RegisteredPost, userCredential.user!.uid);
+        final packagePostDeldListDB = await NetworkService()
+            .getServicesDeivered(PostType.Package, userCredential.user!.uid);
+
+        // Provider.of<PostData>(context, listen: false).uid = userCredential.user!.uid;
+        Provider.of<PostData>(context, listen: false)
+            .setNormalPostList(normalPostListDB!);
+        Provider.of<PostData>(context, listen: false)
+            .setRegisteredPostList(registeredPostListDB!);
+        Provider.of<PostData>(context, listen: false)
+            .setPackagePostList(packagePostListDB!);
+
+        Provider.of<PostData>(context, listen: false)
+            .setNormalPostListUndelivereble(normalPostUndelListDB!);
+        Provider.of<PostData>(context, listen: false)
+            .setRegisteredPostListUndelivereble(registeredPostUndelListDB!);
+        Provider.of<PostData>(context, listen: false)
+            .setPackagePostListUndelivereble(packagePostUndelListDB!);
+
+        Provider.of<PostData>(context, listen: false)
+            .setNormalPostListDelivered(normalPostDeldListDB!);
+        Provider.of<PostData>(context, listen: false)
+            .setRegisteredPostListDelivered(registeredPostDeldListDB!);
+        Provider.of<PostData>(context, listen: false)
+            .setPackagePostDelivered(packagePostDeldListDB!);
+
+        Navigator.pushNamed(context, PostmanScreen.screenId);
+      } else if (userDet['role'] == 'deliveryLogKeeper') {
+        Navigator.pushNamed(context, DeliveryScreen.screenId);
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        AlertBox.showMyDialog(context, 'Error!', 'User email cannot recognized',
+            () {
+          Navigator.of(context).pop();
+        }, Colors.red[900]);
+      } else if (e.code == 'wrong-password') {
+        AlertBox.showMyDialog(context, 'Error!', 'Password is incorrect', () {
+          Navigator.of(context).pop();
+        }, Colors.red[900]);
+      } else {
+        AlertBox.showMyDialog(
+            context, 'Error!', 'Please Check your network connection', () {
+          Navigator.of(context).pop();
+        }, Colors.red[900]);
+      }
+    } catch (e) {
+      AlertBox.showMyDialog(context, 'Server Error!',
+          'Please check your network connection or inform to Post Office : ${e} ',
+          () {
+        Navigator.of(context).pop();
+      }, Colors.red[900]);
+    }
+    setState(() {
+      showSpinner = false;
+    });
+  }
+
+  getMessage() {
+    return message;
+  }
+}

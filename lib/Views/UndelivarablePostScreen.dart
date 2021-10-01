@@ -1,45 +1,39 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:function_app/Module/NormalPost.dart';
+import 'package:function_app/Components/Alerts.dart';
+import 'package:function_app/Components/DrawerChild.dart';
+import 'package:function_app/Components/TextWrite.dart';
 import 'package:function_app/Module/PostItem.dart';
-import 'package:function_app/StateManagement/PostData.dart';
-import 'package:function_app/Views/SignatureView.dart';
-import 'package:search_page/search_page.dart';
-import 'Alerts.dart';
-import 'ConstantFile.dart';
 import 'package:provider/provider.dart';
-import 'package:function_app/Views/RemainingPostScreen.dart';
+import 'package:function_app/StateManagement/PostData.dart';
+import 'package:function_app/Components/ConstantFile.dart';
+import 'package:function_app/Components/SearchFuntionUndelivered.dart';
+import 'package:function_app/Views/SignatureView.dart';
 
-import 'TextWrite.dart';
-
-class SearchFunction extends StatefulWidget {
-  SearchFunction({
-    required this.postType,
-  });
-  final PostType postType;
+class UndeliverablePostScreen extends StatefulWidget {
+  static final String screenId = 'UndeliverablePostScreen';
 
   @override
-  _SearchFunctionState createState() => _SearchFunctionState();
+  _UndeliverablePostScreen createState() => _UndeliverablePostScreen();
 }
 
-class _SearchFunctionState extends State<SearchFunction> {
-  late List<PostItem> postItems;
+class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
+  late PostType postType;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
       if (postType == PostType.NormalPost) {
         Provider.of<PostData>(context, listen: false)
-            .removeNormalPost(postItem, PostAction.Success);
+            .removeNormalPostUndeliverable(postItem);
       } else if (postType == PostType.RegisteredPost) {
         Provider.of<PostData>(context, listen: false)
-            .removeRegisteredPost(postItem, PostAction.Success);
+            .removeRegisteredPostUndeliverable(postItem);
       } else if (postType == PostType.Package) {
         Provider.of<PostData>(context, listen: false)
-            .removePackagePost(postItem, PostAction.Success);
+            .removePackagePostUndeliverable(postItem);
       }
-      Navigator.popUntil(
-          context, ModalRoute.withName('${RemainingPostScreen.screenId}'));
+      Navigator.pop(context);
       AlertBox.showMyDialog(context, 'Successful', 'Data Updated', () {
         Navigator.of(context).pop();
       }, Colors.green[900]);
@@ -51,32 +45,7 @@ class _SearchFunctionState extends State<SearchFunction> {
     }
   }
 
-  void handleDBFailedDelivery(result, postItem, postType) {
-    if (result == DatabaseResult.Success) {
-      if (postType == PostType.NormalPost) {
-        Provider.of<PostData>(context, listen: false)
-            .removeNormalPost(postItem, PostAction.Fail);
-      } else if (postType == PostType.RegisteredPost) {
-        Provider.of<PostData>(context, listen: false)
-            .removeRegisteredPost(postItem, PostAction.Fail);
-      } else if (postType == PostType.Package) {
-        Provider.of<PostData>(context, listen: false)
-            .removePackagePost(postItem, PostAction.Fail);
-      }
-      Navigator.popUntil(
-          context, ModalRoute.withName('${RemainingPostScreen.screenId}'));
-      AlertBox.showMyDialog(context, 'Successful', 'Data Updated', () {
-        Navigator.of(context).pop();
-      }, Colors.green[900]);
-    } else {
-      AlertBox.showMyDialog(
-          context, 'Failed', 'Check your Connection and Try again', () {
-        Navigator.of(context).pop();
-      }, Colors.red[900]);
-    }
-  }
-
-  acceptButton(signature, type, PostItem postItem) async {
+  void acceptButtonUndeliverable(signature, type, PostItem postItem) async {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -91,7 +60,7 @@ class _SearchFunctionState extends State<SearchFunction> {
                 TextWriteWidget('Address:', 20.0),
                 SizedBox(height: 5.0),
                 TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}',
+                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
                     15.0),
                 Divider(),
                 SizedBox(height: 10.0),
@@ -119,23 +88,6 @@ class _SearchFunctionState extends State<SearchFunction> {
                           child: Text('Delivered',
                               style: TextStyle(color: Colors.green))),
                     ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.NormalPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
@@ -151,7 +103,7 @@ class _SearchFunctionState extends State<SearchFunction> {
                 TextWriteWidget('Address:', 20.0),
                 SizedBox(height: 5.0),
                 TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}',
+                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
                     15.0),
                 Divider(),
                 SizedBox(height: 10.0),
@@ -187,23 +139,6 @@ class _SearchFunctionState extends State<SearchFunction> {
                           child: Text('Delivered',
                               style: TextStyle(color: Colors.green))),
                     ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.RegisteredPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
@@ -219,7 +154,7 @@ class _SearchFunctionState extends State<SearchFunction> {
                 TextWriteWidget('Address:', 20.0),
                 SizedBox(height: 5.0),
                 TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}',
+                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
                     15.0),
                 Divider(),
                 SizedBox(height: 10.0),
@@ -255,23 +190,6 @@ class _SearchFunctionState extends State<SearchFunction> {
                           child: Text('Delivered',
                               style: TextStyle(color: Colors.green))),
                     ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.Package);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
@@ -285,69 +203,77 @@ class _SearchFunctionState extends State<SearchFunction> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
-    if (widget.postType == PostType.NormalPost) {
-      postItems =
-          Provider.of<PostData>(context, listen: false).getNormalPostList;
+    postType = ModalRoute.of(context)!.settings.arguments as PostType;
+    String barName = '';
+    if (postType == PostType.NormalPost) {
+      barName = 'Normal';
+    } else if (postType == PostType.RegisteredPost) {
+      barName = 'Registered';
+    } else if (postType == PostType.Package) {
+      barName = 'Package';
     }
-    if (widget.postType == PostType.RegisteredPost) {
-      postItems =
-          Provider.of<PostData>(context, listen: false).getRegisteredPostList;
-    }
-    if (widget.postType == PostType.Package) {
-      postItems =
-          Provider.of<PostData>(context, listen: false).getPackagePostList;
-    }
-
-    return FloatingActionButton(
-      tooltip: 'Search Posts',
-      onPressed: () => showSearch(
-        context: context,
-        delegate: SearchPage<PostItem>(
-          onQueryUpdate: (s) => print(s),
-          items: postItems,
-          searchLabel: 'Search Posts',
-          suggestion: Center(
-            child: Text('Filter Posts by address or name'),
-          ),
-          failure: Center(
-            child: Text('No post found :('),
-          ),
-          filter: (post) => [
-            post.getRecipientAddressNUmber,
-            post.getRecipientStreet1,
-            post.getRecipientStreet2,
-            post.getRecipientCity,
-            post.getRecipientName,
-          ],
-          builder: (post) => ListTile(
-            title: Text(
-                '${post.getRecipientAddressNUmber}, ${post.getRecipientStreet1} road,${post.getRecipientStreet2} ,${post.getRecipientCity}'),
-            subtitle: Text(post.getRecipientName),
-            trailing: Checkbox(
-              onChanged: (bool? value) async {
-                var signature;
-                if (widget.postType == PostType.NormalPost) {
-                } else if (widget.postType == PostType.RegisteredPost) {
-                  signature = await Navigator.pushNamed(
-                      context, SignatureScreen.screenId);
-                } else if (widget.postType == PostType.Package) {
-                  signature = await Navigator.pushNamed(
-                      context, SignatureScreen.screenId);
-                }
-                acceptButton(signature, widget.postType, post);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('$barName Undeliverable Post'),
+      ),
+      drawer: Drawer(
+        child: DrawerChild(),
+      ),
+      body: Container(
+        margin: EdgeInsets.all(30.0),
+        child: Consumer<PostData>(
+          builder: (context, postdata, child) {
+            List<PostItem> allPostList = [];
+            if (postType == PostType.NormalPost) {
+              allPostList = postdata.getNormalPostListUndelivereble;
+            } else if (postType == PostType.RegisteredPost) {
+              allPostList = postdata.getRegisteredPostListUndeliverable;
+            } else if (postType == PostType.Package) {
+              allPostList = postdata.getPackagePostListUndeleverable;
+            }
+            return ListView.builder(
+              itemCount: allPostList.length,
+              itemBuilder: (context, index) {
+                final PostItem postItem = allPostList[index];
+                return Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                          '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2 != null ? postItem.getRecipientStreet2 + 'road' : ''}, ${postItem.getRecipientCity}'),
+                      subtitle: Text('${postItem.getRecipientName}'),
+                      trailing: Checkbox(
+                        onChanged: (bool? value) async {
+                          var signature;
+                          if (postType == PostType.NormalPost) {
+                            //postdata.removeNormalPost(postItem);
+                          } else if (postType == PostType.RegisteredPost) {
+                            // postdata.removeRegisteredPost(postItem);
+                            signature = await Navigator.pushNamed(
+                                context, SignatureScreen.screenId);
+                          } else if (postType == PostType.Package) {
+                            //postdata.removepackagePost(postItem);
+                            signature = await Navigator.pushNamed(
+                                context, SignatureScreen.screenId);
+                          }
+                          acceptButtonUndeliverable(
+                              signature, postType, postItem);
+                        },
+                        value: false,
+                      ),
+                    ),
+                    Divider(),
+                  ],
+                );
               },
-              value: false,
-            ),
-          ),
+            );
+          },
         ),
       ),
-      child: Icon(Icons.search),
+      floatingActionButton: SearchFunctionUndelivered(
+        postType: postType,
+      ),
     );
   }
 }
-
-/*
-Navigator.of(context).popUntil((route) => route.isFirst);
-
- */

@@ -98,8 +98,32 @@ class LocationService implements Exception {
 
   static double getDistance(double startLatitude, double startLongitude,
       double endLatitude, double endLongitude) {
-    return Geolocator.distanceBetween(
-        startLatitude, startLongitude, endLatitude, endLongitude);
+    if (startLatitude > -90 &&
+        startLatitude < 90 &&
+        startLongitude > -180 &&
+        startLongitude < 180 &&
+        endLatitude > -90 &&
+        endLatitude < 90 &&
+        endLongitude > -180 &&
+        endLongitude < 180 &&
+        isNumeric(startLatitude) &&
+        isNumeric(startLongitude) &&
+        isNumeric(endLatitude) &&
+        isNumeric(endLongitude)) {
+      return Geolocator.distanceBetween(
+              startLatitude, startLongitude, endLatitude, endLongitude)
+          .roundToDouble();
+    } else {
+      return 0.0;
+    }
+  }
+
+  static bool isNumeric(d) {
+    String s = d.toString();
+    if (s == null) {
+      return false;
+    }
+    return double.tryParse(s) != null;
   }
 }
 

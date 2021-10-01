@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AlertBox {
-  static Future<void> showMyDialog(context, title, bodyText, pressed) async {
+  static Future<void> showMyDialog(
+      context, title, bodyText, pressed, headColor) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -9,7 +10,7 @@ class AlertBox {
         return AlertDialog(
           title: Text(
             '$title',
-            style: TextStyle(fontSize: 35, color: Colors.red[900]),
+            style: TextStyle(fontSize: 35, color: headColor),
           ),
           backgroundColor: Colors.white,
           content: SingleChildScrollView(

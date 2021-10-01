@@ -1,63 +1,154 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:function_app/Module/PostItem.dart';
+import 'package:function_app/Services/NetworkServices.dart';
 
 class PackagePost extends PostItem {
-  late String _senderEmail;
-  late String _senderAddressNUmber;
-  late String _senderStreet;
-  late String _senderCity;
-  late String _signature;
-  late int _weight;
-  late String _receiverEmail;
+  String senderEmail;
+  String senderAddressNUmber;
+  String senderStreet1;
+  String senderStreet2;
+  String senderCity;
+  String senderName;
+  late String signature;
+  String weight;
+  String receiverEmail;
 
   PackagePost(
-    String pid,
-    List<double> loc,
-    String recName,
-    String recAdNum,
-    String recStreet,
-    String recCity,
-    String senEmail,
-    String senAdNum,
-    String senStreet,
-    String senCity,
-    String recEmail,
-    int weight,
-  ) : super(pid, loc, recName, recAdNum, recStreet, recCity) {
-    this._senderEmail = senEmail;
-    this._senderAddressNUmber = senAdNum;
-    this._senderStreet = senStreet;
-    this._senderCity = senCity;
-    this._receiverEmail = recEmail;
-    this._weight = weight;
+      {required String pid,
+      required List<double> loc,
+      required String recName,
+      required String recAdNum,
+      required String recStreet1,
+      required String recStreet2,
+      required String recCity,
+      required String cost,
+      required this.senderEmail,
+      required this.senderAddressNUmber,
+      required this.senderStreet1,
+      required this.senderStreet2,
+      required this.senderCity,
+      required this.weight,
+      required this.receiverEmail,
+      required this.senderName,
+      required bool ispending,
+      required bool iscannotdel,
+      required var acceptedPO,
+      required var destinationPO,
+      required String docID})
+      : super(
+            pid: pid,
+            cost: cost,
+            location: loc,
+            recipientName: recName,
+            recipientAddressNUmber: recAdNum,
+            recipientStreet1: recStreet1,
+            recipientStreet2: recStreet2,
+            recipientCity: recCity,
+            isPending: ispending,
+            isCannotDelivered: iscannotdel,
+            acceptedPO: acceptedPO,
+            docID: docID,
+            destinationPO: destinationPO);
+
+  String get getWeight => weight;
+
+  String get getReceiverEmail => receiverEmail;
+
+  String get getSignature => signature;
+
+  String get getSenderCity => senderCity;
+
+  String get getSenderStreet1 => senderStreet1;
+
+  String get getSenderStreet2 => senderStreet2;
+
+  String get getSenderAddressNUmber => senderAddressNUmber;
+
+  String get getSenderEmail => senderEmail;
+
+  setSignature(String value) {
+    signature = value;
   }
 
-  int get getWeight => _weight;
+  factory PackagePost.fromJson(Map<dynamic, dynamic> json, String docID) =>
+      PackagePost(
+        pid: json["pid"],
+        loc: [],
+        docID: docID,
+        cost: json["cost"].toString(),
+        acceptedPO: json["acceptedPostoffice"],
+        destinationPO: json["destinationPostoffice"],
+        recName: json["recipientDetails"]["recipientName"],
+        recAdNum: json["recipientDetails"]["recipientAddressNo"],
+        recStreet1: json["recipientDetails"]["recipientStreet1"],
+        recStreet2: json["recipientDetails"]["recipientStreet2"],
+        recCity: json["recipientDetails"]["recipientCity"],
+        senderEmail: json["senderDetails"]["senderEmail"],
+        senderName: json["senderDetails"]["senderName"],
+        ispending: true,
+        iscannotdel: false,
+        senderCity: json["senderDetails"]["senderCity"],
+        senderStreet1: json["senderDetails"]["senderStreet1"],
+        senderStreet2: json["senderDetails"]["senderStreet2"],
+        senderAddressNUmber: json["senderDetails"]["senderAddressNo"],
+        weight: json["weight"].toString(),
+        receiverEmail: json["recipientDetails"]["recipientEmail"],
+      );
 
-  String get getReceiverEmail => _receiverEmail;
+  Map<String, dynamic> toJson(uid, signature, day) => {
+        "pid": pid,
+        "acceptedPostoffice": acceptedPO,
+        "destinationPostoffice": destinationPO,
+        "recipientDetails": {
+          "recipientAddressNo": recipientAddressNUmber,
+          "recipientStreet1": recipientStreet1,
+          "recipientStreet2": recipientStreet2,
+          "recipientCity": recipientCity,
+          "recipientName": recipientName,
+          "recipientEmail": receiverEmail,
+        },
+        "senderDetails": {
+          "senderAddressNo": senderAddressNUmber,
+          "senderStreet1": senderStreet1,
+          "senderStreet2": senderStreet2,
+          "senderCity": senderCity,
+          "senderName": senderName,
+          "senderEmail": senderEmail,
+        },
+        "type": "PackagePost",
+        "histories": [
+          {
+            'action': 'delivered',
+            "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
+            "date": day,
+          }
+        ],
+        "cost": cost,
+        "signature": 'signatureRef',
+        "state": "Delivered",
+        "timestamp": Timestamp.now(),
+        "weight": weight,
+      };
 
-  String get getSignature => _signature;
-
-  String get getSenderCity => _senderCity;
-
-  String get getSenderStreet => _senderStreet;
-
-  String get getSenderAddressNUmber => _senderAddressNUmber;
-
-  String get getSenderEmail => _senderEmail;
-
-  set setSignature(String value) {
-    _signature = value;
+  String toString() {
+    return 'Student: {pid: ${pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
+        'recStreet1 : ${recipientStreet1},recStreet2: ${recipientStreet2}, recCity : ${recipientCity}, recEmail : ${receiverEmail} ,ispending : ${isPending}, '
+        'iscannotDeli : ${isCannotDelivered}, acceptPO : ${acceptedPO}, destiPO : ${destinationPO}, docId: ${docID} , '
+        'senderEmail : ${senderEmail} , senderAdNUm : ${senderAddressNUmber}, senderStreet1 : ${senderStreet1}, senderStreet2 : ${senderStreet2}'
+        'senderCity : ${senderCity}, weight: ${weight} ';
   }
 
   @override
-  handleFailedDelivery() {
-    // TODO: implement handleFailedDelivery
-    throw UnimplementedError();
+  handleFailedDelivery(uid) async {
+    return await NetworkService().PostFailed(uid, docID);
   }
 
   @override
-  handleSuccessfulDelivery() {
-    // TODO: implement handleSuccessfulDelivery
-    throw UnimplementedError();
+  handleSuccessfulDelivery(signature, uid) async {
+    // TODO: add signature function
+    return await NetworkService()
+        .PostDeliverySignature(uid, docID, this, signature);
   }
+
+  restorePost() {}
 }

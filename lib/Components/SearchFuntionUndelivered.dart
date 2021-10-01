@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:function_app/Module/NormalPost.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Views/SignatureView.dart';
@@ -8,21 +7,21 @@ import 'package:search_page/search_page.dart';
 import 'Alerts.dart';
 import 'ConstantFile.dart';
 import 'package:provider/provider.dart';
-import 'package:function_app/Views/RemainingPostScreen.dart';
+import 'package:function_app/Views/UndelivarablePostScreen.dart';
 
 import 'TextWrite.dart';
 
-class SearchFunction extends StatefulWidget {
-  SearchFunction({
+class SearchFunctionUndelivered extends StatefulWidget {
+  SearchFunctionUndelivered({
     required this.postType,
   });
   final PostType postType;
 
   @override
-  _SearchFunctionState createState() => _SearchFunctionState();
+  _SearchFunctionUndelivered createState() => _SearchFunctionUndelivered();
 }
 
-class _SearchFunctionState extends State<SearchFunction> {
+class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
   late List<PostItem> postItems;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -30,41 +29,16 @@ class _SearchFunctionState extends State<SearchFunction> {
     if (result == DatabaseResult.Success) {
       if (postType == PostType.NormalPost) {
         Provider.of<PostData>(context, listen: false)
-            .removeNormalPost(postItem, PostAction.Success);
+            .removeNormalPostUndeliverable(postItem);
       } else if (postType == PostType.RegisteredPost) {
         Provider.of<PostData>(context, listen: false)
-            .removeRegisteredPost(postItem, PostAction.Success);
+            .removeRegisteredPostUndeliverable(postItem);
       } else if (postType == PostType.Package) {
         Provider.of<PostData>(context, listen: false)
-            .removePackagePost(postItem, PostAction.Success);
+            .removePackagePostUndeliverable(postItem);
       }
       Navigator.popUntil(
-          context, ModalRoute.withName('${RemainingPostScreen.screenId}'));
-      AlertBox.showMyDialog(context, 'Successful', 'Data Updated', () {
-        Navigator.of(context).pop();
-      }, Colors.green[900]);
-    } else {
-      AlertBox.showMyDialog(
-          context, 'Failed', 'Check your Connection and Try again', () {
-        Navigator.of(context).pop();
-      }, Colors.red[900]);
-    }
-  }
-
-  void handleDBFailedDelivery(result, postItem, postType) {
-    if (result == DatabaseResult.Success) {
-      if (postType == PostType.NormalPost) {
-        Provider.of<PostData>(context, listen: false)
-            .removeNormalPost(postItem, PostAction.Fail);
-      } else if (postType == PostType.RegisteredPost) {
-        Provider.of<PostData>(context, listen: false)
-            .removeRegisteredPost(postItem, PostAction.Fail);
-      } else if (postType == PostType.Package) {
-        Provider.of<PostData>(context, listen: false)
-            .removePackagePost(postItem, PostAction.Fail);
-      }
-      Navigator.popUntil(
-          context, ModalRoute.withName('${RemainingPostScreen.screenId}'));
+          context, ModalRoute.withName('${UndeliverablePostScreen.screenId}'));
       AlertBox.showMyDialog(context, 'Successful', 'Data Updated', () {
         Navigator.of(context).pop();
       }, Colors.green[900]);
@@ -119,23 +93,6 @@ class _SearchFunctionState extends State<SearchFunction> {
                           child: Text('Delivered',
                               style: TextStyle(color: Colors.green))),
                     ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.NormalPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ],
@@ -178,7 +135,7 @@ class _SearchFunctionState extends State<SearchFunction> {
                                 await postItem.handleSuccessfulDelivery(
                                     signature, _auth.currentUser!.uid);
                             handleDatabaseResult(
-                                result, postItem, PostType.RegisteredPost);
+                                result, postItem, PostType.NormalPost);
                           },
                           style: ButtonStyle(
                             backgroundColor:
@@ -186,23 +143,6 @@ class _SearchFunctionState extends State<SearchFunction> {
                           ),
                           child: Text('Delivered',
                               style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.RegisteredPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -219,7 +159,7 @@ class _SearchFunctionState extends State<SearchFunction> {
                 TextWriteWidget('Address:', 20.0),
                 SizedBox(height: 5.0),
                 TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}',
+                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}, ',
                     15.0),
                 Divider(),
                 SizedBox(height: 10.0),
@@ -246,7 +186,7 @@ class _SearchFunctionState extends State<SearchFunction> {
                                 await postItem.handleSuccessfulDelivery(
                                     signature, _auth.currentUser!.uid);
                             handleDatabaseResult(
-                                result, postItem, PostType.Package);
+                                result, postItem, PostType.NormalPost);
                           },
                           style: ButtonStyle(
                             backgroundColor:
@@ -254,23 +194,6 @@ class _SearchFunctionState extends State<SearchFunction> {
                           ),
                           child: Text('Delivered',
                               style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.Package);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
-                        ),
-                      ),
                     ),
                   ],
                 ),

@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:function_app/Module/User.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Data extends ChangeNotifier {
+
+  late AppUser userDetails;
+
   Set<Marker> markers = {
     Marker(markerId: MarkerId('1'), position: LatLng(7.0246668, 79.9671238)),
     Marker(markerId: MarkerId('2'), position: LatLng(7.0236778, 79.9682180)),

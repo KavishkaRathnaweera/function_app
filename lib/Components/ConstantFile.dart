@@ -10,8 +10,20 @@ enum AddressSelection {
   Manual,
 }
 
-enum PostType{
+enum PostType {
   NormalPost,
   RegisteredPost,
   Package,
+}
+
+enum PostAction {
+  Success,
+  Fail,
+}
+
+enum DatabaseResult{
+  Success,
+  OnlyDelete,
+  OnlyAdded,
+  Failed,
 }

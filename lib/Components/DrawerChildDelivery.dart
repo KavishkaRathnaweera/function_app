@@ -3,11 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:function_app/Components/TextWrite.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:function_app/StateManagement/Data.dart';
 
 import 'package:function_app/Views/BarcodeScreen.dart';
 import 'package:function_app/Views/ScannedBarcode.dart';
 import 'package:function_app/DeliveryKeeper.dart';
 import 'package:function_app/Views/loginScreen.dart';
+import 'package:provider/provider.dart';
 
 class DrawerChildDelivery extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -26,22 +28,42 @@ class DrawerChildDelivery extends StatelessWidget {
           style: ButtonStyle(
               backgroundColor:
                   MaterialStateProperty.all<Color>(Colors.red.shade900)),
-          child: DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.red[900],
-            ),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  child: Image.asset('images/postman.png'),
-                  maxRadius: 50.0,
+          child: Column(
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.red[900],
                 ),
-                Text(
-                  'Delivery Log Keeper',
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0),
-                )
-              ],
-            ),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      child: Image.asset('images/postman.png'),
+                      maxRadius: 50.0,
+                    ),
+                    Text(
+                      'Delivery Log Keeper',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500, fontSize: 20.0),
+                    )
+                  ],
+                ),
+              ),
+              Text(
+                'Name   : ${Provider.of<Data>(context, listen: false).userDetails.firstName} '
+                '${Provider.of<Data>(context, listen: false).userDetails.lastName}',
+                style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15.0,
+                    color: Colors.black),
+              ),
+              Text(
+                'NIC No : ${Provider.of<Data>(context, listen: false).userDetails.nic}',
+                style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15.0,
+                    color: Colors.black),
+              ),
+            ],
           ),
         ),
         ListTile(

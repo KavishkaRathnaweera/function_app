@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:function_app/Components/Alerts.dart';
+import 'package:function_app/PostmanScreen.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -36,21 +38,33 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         Provider.of<Data>(context, listen: false).markers.add(mark);
       });
     } on LocationServiceDisabledException catch (e) {
-      dialogLocationError(
-          'Location disabled in your phone', 'Please on location');
       print('hello,location serivce desables');
+      AlertBox.showMyDialog(context, 'Location Service is Disabled',
+          'Please on Location on your phone', () {
+        Navigator.popUntil(
+            context, ModalRoute.withName('${PostmanScreen.screenId}'));
+      }, Colors.red[900]);
     } on PermissionDeniedException catch (e) {
-      dialogLocationError('Location Denied in your phone',
-          'Please give permission to the Application');
       print('permission denied');
+      AlertBox.showMyDialog(context, 'Location Denied in your phone',
+          'Please give permission to the Application', () {
+        Navigator.popUntil(
+            context, ModalRoute.withName('${PostmanScreen.screenId}'));
+      }, Colors.red[900]);
     } on DeniedForeverException catch (e) {
-      dialogLocationError('Location Denied in your phone',
-          'Please give permission to the Application');
       print('permission forever denied');
+      AlertBox.showMyDialog(context, 'Location Denied in your phone',
+          'Please give permission to the Application', () {
+        Navigator.popUntil(
+            context, ModalRoute.withName('${PostmanScreen.screenId}'));
+      }, Colors.red[900]);
     } catch (e) {
       print(e);
-      dialogLocationError('Something went Wrong!!!!!',
-          'Please check your Mobile Location Service');
+      AlertBox.showMyDialog(context, 'Something went Wrong!!!!!',
+          'Please check your Mobile Location Service', () {
+        Navigator.popUntil(
+            context, ModalRoute.withName('${PostmanScreen.screenId}'));
+      }, Colors.red[900]);
     }
   }
 

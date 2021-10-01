@@ -13,9 +13,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
 
   @override
   void initState() {
-    control = SignatureController(
-      penStrokeWidth: 5,
-    );
+    control = SignatureController(penStrokeWidth: 3, penColor: Colors.white);
     super.initState();
   }
 
@@ -34,22 +32,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
   void acceptButton() async {
     final signatureObject = await control.toPngBytes();
     if (signatureObject != null) {
-      showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          //return Provider.value(value: myModel, child: BottomSheetCreate());
-          return Column(children: [
-            Image.memory(signatureObject),
-            Row(
-              children: [
-                TextButton(onPressed: () {}, child: Text('Add')),
-                TextButton(onPressed: () {}, child: Text('Reject')),
-              ],
-            )
-          ]);
-        },
-        isScrollControlled: true,
-      );
+      Navigator.pop(context, signatureObject);
     }
 
     //return signatureObject;
@@ -78,7 +61,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
             Container(
               child: Signature(
                 controller: control,
-                backgroundColor: Colors.white,
+                backgroundColor: Colors.black12,
               ),
             ),
             Container(

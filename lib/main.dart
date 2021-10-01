@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:provider/provider.dart';
+import 'package:function_app/StateManagement/Data.dart';
 
 import 'package:function_app/Views/loginScreen.dart';
 import 'package:function_app/PostmanScreen.dart';
@@ -9,14 +10,14 @@ import 'package:function_app/DeliveryKeeper.dart';
 import 'package:function_app/ErrorScreen.dart';
 import 'package:function_app/LoadingScreen.dart';
 
-import 'package:function_app/StateManagement/Data.dart';
-
 import 'package:function_app/Views/SignatureView.dart';
 import 'package:function_app/Views/BarcodeScreen.dart';
 import 'package:function_app/Views/GoogleMapScreen.dart';
 import 'package:function_app/Views/AddressScreen.dart';
-import 'package:function_app/Views/NormalPostScreen.dart';
+import 'package:function_app/Views/RemainingPostScreen.dart';
 import 'package:function_app/Views/ScannedBarcode.dart';
+import 'package:function_app/Views/UndelivarablePostScreen.dart';
+import 'package:function_app/Views/DeliveredPostScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -100,8 +101,11 @@ class _MyAppState extends State<MyApp> {
           SignatureScreen.screenId: (context) => SignatureScreen(),
           BarcodeScreen.screenId: (context) => BarcodeScreen(),
           AddAddress.screenId: (context) => AddAddress(),
-          NormalPostScreen.screenId: (context) => NormalPostScreen(),
+          RemainingPostScreen.screenId: (context) => RemainingPostScreen(),
+          UndeliverablePostScreen.screenId: (context) =>
+              UndeliverablePostScreen(),
           ScannedBarcode.screenId: (context) => ScannedBarcode(),
+          DeliveredPostScreen.screenId: (context) => DeliveredPostScreen(),
         },
       ),
     );
