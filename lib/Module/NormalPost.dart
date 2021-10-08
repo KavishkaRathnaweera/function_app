@@ -35,7 +35,7 @@ class NormalPost extends PostItem {
 
   @override
   Future<DatabaseResult> handleFailedDelivery(uid) async {
-    return await NetworkService().PostFailed(uid, docID);
+    return await NetworkService().PostFailed(uid, docID, this);
   }
 
   @override
@@ -45,10 +45,11 @@ class NormalPost extends PostItem {
 
   restorePost() {}
 
-  factory NormalPost.fromJson(Map<dynamic, dynamic> json, String docID) =>
+  factory NormalPost.fromJson(
+          Map<dynamic, dynamic> json, String docID, locDetails) =>
       NormalPost(
         pid: json["pid"],
-        loc: [],
+        loc: locDetails,
         docID: docID,
         cost: json["cost"].toString(),
         acceptedPO: json["acceptedPostoffice"],
@@ -76,7 +77,7 @@ class NormalPost extends PostItem {
         "type": "NormalPost",
         "histories": [
           {
-            "action": "delivered",
+            "action": "Delivered",
             "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
             "date": day,
           }

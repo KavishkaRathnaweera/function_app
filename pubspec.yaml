@@ -27,6 +27,7 @@ dependencies:
   provider: ^6.0.0
   dropdown_search: ^1.0.0
   search_page: ^2.0.0+1
+  flutter_email_sender: ^5.0.2
 
 dev_dependencies:
   flutter_test:

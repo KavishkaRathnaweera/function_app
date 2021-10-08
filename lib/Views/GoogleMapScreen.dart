@@ -38,7 +38,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         Provider.of<Data>(context, listen: false).markers.add(mark);
       });
     } on LocationServiceDisabledException catch (e) {
-      print('hello,location serivce desables');
+      print('hello,location serivce disables');
       AlertBox.showMyDialog(context, 'Location Service is Disabled',
           'Please on Location on your phone', () {
         Navigator.popUntil(

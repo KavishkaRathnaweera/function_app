@@ -16,7 +16,7 @@ class reusableIconText extends StatelessWidget {
         Text(
           '$number',
           style: TextStyle(
-            fontSize: 50,
+            fontSize: 40,
             fontWeight: FontWeight.w900,
             color: color,
           ),
@@ -28,7 +28,7 @@ class reusableIconText extends StatelessWidget {
           name,
           style: TextStyle(
             color: color,
-            fontSize: 18.0,
+            fontSize: 15.0,
           ),
         ),
       ],

@@ -57,6 +57,26 @@ class LocationService implements Exception {
     }
   }
 
+  static Future<dynamic> getCurrentPosition() async {
+    var initLocation;
+    try {
+      initLocation =
+          await LocationService.getPosition(LocationConstant.CurrentPosition);
+    } catch (e) {
+      initLocation =
+          await LocationService.getPosition(LocationConstant.CurrentPosition);
+      initLocation = Position(
+          longitude: 0.0,
+          latitude: 0.0,
+          timestamp: DateTime(1),
+          accuracy: 0.0,
+          altitude: 0.0,
+          heading: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0);
+    }
+  }
+
   void getPositionStream() async {
     bool serviceEnabled;
     LocationPermission permission;

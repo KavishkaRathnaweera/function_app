@@ -4,6 +4,9 @@ import 'package:function_app/Module/NormalPost.dart';
 import 'package:function_app/Module/Package.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Module/RegisteredPost.dart';
+import 'package:geolocator/geolocator.dart';
+
+import 'LocationServices.dart';
 
 class NetworkService {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -52,6 +55,7 @@ class NetworkService {
       List<DocumentSnapshot> templist;
       List<PostItem> returnList = [];
       Map docUIDMap = {};
+      Map locAddress = {};
       List<dynamic> lis = [];
 
       QuerySnapshot collectionSnapshot = await serviceCollection.get();
@@ -60,26 +64,39 @@ class NetworkService {
       lis = templist.map((DocumentSnapshot docSnapshot) {
         Map<String, dynamic> datap =
             docSnapshot.data()! as Map<String, dynamic>;
-        docUIDMap[datap["pid"]] = docSnapshot.id;
-        // fff[docSnapshot.data().] = docSnapshot.id;
+        docUIDMap[datap["pid"]] = [
+          docSnapshot.id,
+          datap["recipientDetails"]["recipientAddressNo"],
+          datap["recipientDetails"]["recipientCity"],
+          datap["recipientDetails"]["recipientStreet1"],
+          datap["recipientDetails"]["recipientStreet2"]
+        ];
         return docSnapshot.data();
       }).toList();
 
+      print('start');
+      await Future.forEach(docUIDMap.keys, (elem) async {
+        locAddress[elem] = await getAddress(docUIDMap[elem][1],
+            docUIDMap[elem][2], docUIDMap[elem][3], docUIDMap[elem][4]);
+        print(locAddress[elem]);
+      });
+      print('done');
+
       lis.forEach((element) {
         if (postType == PostType.NormalPost && lis.isNotEmpty) {
-          print(docUIDMap[element["pid"]]);
-          NormalPost normalPost =
-              NormalPost.fromJson(element, docUIDMap[element["pid"]]);
+          print(element["pid"]);
+          NormalPost normalPost = NormalPost.fromJson(element,
+              docUIDMap[element["pid"]][0], locAddress[element["pid"]]);
           returnList.add(normalPost);
         } else if (postType == PostType.RegisteredPost) {
           print(element["pid"]);
-          RegisteredPost regPost =
-              RegisteredPost.fromJson(element, docUIDMap[element["pid"]]);
+          RegisteredPost regPost = RegisteredPost.fromJson(element,
+              docUIDMap[element["pid"]][0], locAddress[element["pid"]]);
           returnList.add(regPost);
         } else if (postType == PostType.Package) {
           print(element["pid"]);
-          PackagePost packPost =
-              PackagePost.fromJson(element, docUIDMap[element["pid"]]);
+          PackagePost packPost = PackagePost.fromJson(element,
+              docUIDMap[element["pid"]][0], locAddress[element["pid"]]);
           returnList.add(packPost);
         }
       });
@@ -102,7 +119,7 @@ class NetworkService {
           .collection('PendingMails')
           .where('type', isEqualTo: 'NormalPost')
           .where('histories', arrayContains: {
-        'action': 'deliverAttempted',
+        'action': 'DeliverAttempted',
         'date': d,
         'employee': docRef,
       }).where('state', isEqualTo: 'DeliverAttempted');
@@ -111,7 +128,7 @@ class NetworkService {
           .collection('PendingMails')
           .where('type', isEqualTo: 'RegisteredPost')
           .where('histories', arrayContains: {
-        'action': 'deliverAttempted',
+        'action': 'DeliverAttempted',
         'date': d,
         'employee': docRef,
       }).where('state', isEqualTo: 'DeliverAttempted');
@@ -120,7 +137,7 @@ class NetworkService {
           .collection('PendingMails')
           .where('type', isEqualTo: 'Package')
           .where('histories', arrayContains: {
-        'action': 'deliverAttempted',
+        'action': 'DeliverAttempted',
         'date': d,
         'employee': docRef,
       }).where('state', isEqualTo: 'DeliverAttempted');
@@ -132,34 +149,46 @@ class NetworkService {
       List<DocumentSnapshot> templist;
       List<PostItem> returnList = [];
       Map docUIDMap = {};
+      Map locAddress = {};
       List<dynamic> lis = [];
 
       QuerySnapshot collectionSnapshot = await serviceCollection.get();
       templist = collectionSnapshot.docs;
 
-      lis = templist.map((DocumentSnapshot docSnapshot) {
+      lis = templist.map((DocumentSnapshot docSnapshot) async {
         Map<String, dynamic> datap =
             docSnapshot.data()! as Map<String, dynamic>;
-        docUIDMap[datap["pid"]] = docSnapshot.id;
+        var locDetails = await getAddress(
+            datap["recipientDetails"]["recipientAddressNo"],
+            datap["recipientDetails"]["recipientCity"],
+            datap["recipientDetails"]["recipientStreet1"],
+            datap["recipientDetails"]["recipientStreet2"]);
+        docUIDMap[datap["pid"]] = [docSnapshot.id, locDetails];
         // fff[docSnapshot.data().] = docSnapshot.id;
         return docSnapshot.data();
       }).toList();
 
+      await Future.forEach(docUIDMap.keys, (elem) async {
+        locAddress[elem] = await getAddress(docUIDMap[elem][1],
+            docUIDMap[elem][2], docUIDMap[elem][3], docUIDMap[elem][4]);
+        print(locAddress[elem]);
+      });
+
       lis.forEach((element) {
         if (postType == PostType.NormalPost && lis.isNotEmpty) {
           print(docUIDMap[element["pid"]]);
-          NormalPost normalPost =
-              NormalPost.fromJson(element, docUIDMap[element["pid"]]);
+          NormalPost normalPost = NormalPost.fromJson(element,
+              docUIDMap[element["pid"]][0], locAddress[element["pid"]]);
           returnList.add(normalPost);
         } else if (postType == PostType.RegisteredPost) {
           print(element["pid"]);
-          RegisteredPost regPost =
-              RegisteredPost.fromJson(element, docUIDMap[element["pid"]]);
+          RegisteredPost regPost = RegisteredPost.fromJson(element,
+              docUIDMap[element["pid"]][0], locAddress[element["pid"]]);
           returnList.add(regPost);
         } else if (postType == PostType.Package) {
           print(element["pid"]);
-          PackagePost packPost =
-              PackagePost.fromJson(element, docUIDMap[element["pid"]]);
+          PackagePost packPost = PackagePost.fromJson(element,
+              docUIDMap[element["pid"]][0], locAddress[element["pid"]]);
           returnList.add(packPost);
         }
       });
@@ -182,7 +211,7 @@ class NetworkService {
           .collection('DeliveredMails')
           .where('type', isEqualTo: 'NormalPost')
           .where('histories', arrayContains: {
-        'action': 'delivered',
+        'action': 'Delivered',
         'employee': docRef,
         'date': d,
       }).where('state', isEqualTo: 'Delivered');
@@ -191,7 +220,7 @@ class NetworkService {
           .collection('DeliveredMails')
           .where('type', isEqualTo: 'RegisteredPost')
           .where('histories', arrayContains: {
-        'action': 'delivered',
+        'action': 'Delivered',
         'employee': docRef,
         'date': d,
       }).where('state', isEqualTo: 'Delivered');
@@ -200,7 +229,7 @@ class NetworkService {
           .collection('DeliveredMails')
           .where('type', isEqualTo: 'Package')
           .where('histories', arrayContains: {
-        'action': 'delivered',
+        'action': 'Delivered',
         'employee': docRef,
         'date': d,
       }).where('state', isEqualTo: 'Delivered');
@@ -228,18 +257,18 @@ class NetworkService {
       lis.forEach((element) {
         if (postType == PostType.NormalPost && lis.isNotEmpty) {
           print(docUIDMap[element["pid"]]);
-          NormalPost normalPost =
-              NormalPost.fromJson(element, docUIDMap[element["pid"]]);
+          NormalPost normalPost = NormalPost.fromJson(
+              element, docUIDMap[element["pid"]], [0.0, 0.0]);
           returnList.add(normalPost);
         } else if (postType == PostType.RegisteredPost) {
           print(element["pid"]);
-          RegisteredPost regPost =
-              RegisteredPost.fromJson(element, docUIDMap[element["pid"]]);
+          RegisteredPost regPost = RegisteredPost.fromJson(
+              element, docUIDMap[element["pid"]], [0.0, 0.0]);
           returnList.add(regPost);
         } else if (postType == PostType.Package) {
           print(element["pid"]);
-          PackagePost packPost =
-              PackagePost.fromJson(element, docUIDMap[element["pid"]]);
+          PackagePost packPost = PackagePost.fromJson(
+              element, docUIDMap[element["pid"]], [0.0, 0.0]);
           returnList.add(packPost);
         }
       });
@@ -251,96 +280,198 @@ class NetworkService {
   }
 
   Future<DatabaseResult> PostDelivery(uid, docID, postRef) async {
-    DateTime d =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    print('a');
     bool isAdded = false;
     bool isDeleted = true;
     var erroradd;
     var errorDel;
-    DocumentReference documentReference =
-        FirebaseFirestore.instance.collection('PendingMails').doc(docID);
-    CollectionReference users = _firestore.collection('DeliveredMails');
-    await users
-        .add(postRef.toJson(uid, d))
-        .then((value) => isAdded = true)
-        .catchError((error) => erroradd = error);
+    var initLocation;
+    try {
+      DateTime d = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      DocumentReference documentReference =
+          FirebaseFirestore.instance.collection('PendingMails').doc(docID);
+      CollectionReference users = _firestore.collection('DeliveredMails');
 
-    // await documentReference
-    //     .delete()
-    //     .then((value) => isDeleted=true)
-    //     .catchError((error) => errorDel = error);
-    print(isAdded);
-    print(erroradd);
+      await users
+          .add(postRef.toJson(uid, d))
+          .then((value) => isAdded = true)
+          .catchError((error) => erroradd = error);
+      print('b');
+      await documentReference
+          .delete()
+          .then((value) => isDeleted = true)
+          .catchError((error) => errorDel = error);
+      print(isAdded);
+      print(erroradd);
+      print('try');
 
-    if (isAdded && isDeleted) {
+      await addAddress(
+          postRef.recipientAddressNUmber,
+          postRef.recipientStreet1,
+          postRef.recipientStreet2,
+          postRef.recipientCity,
+          postRef.location[0],
+          postRef.location[1],
+          false);
+
+      print('address added');
+
       return DatabaseResult.Success;
-    } else if (isAdded) {
-      return DatabaseResult.OnlyAdded;
-    } else if (isDeleted) {
-      return DatabaseResult.OnlyDelete;
-    } else {
-      return DatabaseResult.Failed;
+    } catch (e) {
+      print('error');
+      if (isAdded && isDeleted) {
+        return DatabaseResult.Success;
+      } else if (isAdded && !isDeleted) {
+        return DatabaseResult.OnlyAdded;
+      } else if (isAdded && isDeleted) {
+        return DatabaseResult.OnlyDelete;
+      } else {
+        return DatabaseResult.Failed;
+      }
     }
   }
 
   Future<DatabaseResult> PostDeliverySignature(
       uid, docID, postRef, signature) async {
-    DateTime d =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     bool isAdded = false;
     bool isDeleted = true;
     var erroradd;
     var errorDel;
-    DocumentReference documentReference =
-        FirebaseFirestore.instance.collection('PendingMails').doc(docID);
-    CollectionReference users = _firestore.collection('DeliveredMails');
-    await users
-        .add(postRef.toJson(uid, signature, d))
-        .then((value) => isAdded = true)
-        .catchError((error) => erroradd = error);
+    try {
+      DateTime d = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      DocumentReference documentReference =
+          FirebaseFirestore.instance.collection('PendingMails').doc(docID);
+      CollectionReference users = _firestore.collection('DeliveredMails');
+      await users
+          .add(postRef.toJson(uid, signature, d))
+          .then((value) => isAdded = true)
+          .catchError((error) => erroradd = error);
 
-    // await documentReference
-    //     .delete()
-    //     .then((value) => isDeleted=true)
-    //     .catchError((error) => errorDel = error);
-    print(isAdded);
-    print(erroradd);
+      // await documentReference
+      //     .delete()
+      //     .then((value) => isDeleted = true)
+      //     .catchError((error) => errorDel = error);
 
-    if (isAdded && isDeleted) {
+      await addAddress(
+          postRef.recipientAddressNUmber,
+          postRef.recipientStreet1,
+          postRef.recipientStreet2,
+          postRef.recipientCity,
+          postRef.location[0],
+          postRef.location[1],
+          false);
       return DatabaseResult.Success;
-    } else if (isAdded) {
-      return DatabaseResult.OnlyAdded;
-    } else if (isDeleted) {
-      return DatabaseResult.OnlyDelete;
-    } else {
-      return DatabaseResult.Failed;
+    } catch (e) {
+      if (isAdded && isDeleted) {
+        return DatabaseResult.Success;
+      } else if (isAdded && !isDeleted) {
+        return DatabaseResult.OnlyAdded;
+      } else if (isAdded && isDeleted) {
+        return DatabaseResult.OnlyDelete;
+      } else {
+        return DatabaseResult.Failed;
+      }
     }
   }
 
-  Future<DatabaseResult> PostFailed(uid, docID) async {
+  Future<DatabaseResult> PostFailed(uid, docID, postRef) async {
     bool isUpdated = false;
     var updateError;
-    var docRef = _firestore.collection('Users').doc(uid);
-    DocumentReference documentReference =
-        FirebaseFirestore.instance.collection('PendingMails').doc(docID);
-    DateTime d =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-    await documentReference
-        .update({
-          'histories': FieldValue.arrayUnion([
-            {'action': 'deliverAttempted', 'date': d, 'employee': docRef}
-          ]),
-          'state': 'DeliverAttempted',
-        })
-        .then((value) => isUpdated = true)
-        .catchError((error) => updateError = error);
+    try {
+      await addAddress(
+          postRef.recipientAddressNUmber,
+          postRef.recipientStreet1,
+          postRef.recipientStreet2,
+          postRef.recipientCity,
+          postRef.location[0],
+          postRef.location[1],
+          false);
+      var docRef = _firestore.collection('Users').doc(uid);
+      DocumentReference documentReference =
+          FirebaseFirestore.instance.collection('PendingMails').doc(docID);
+      DateTime d = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      await documentReference
+          .update({
+            'histories': FieldValue.arrayUnion([
+              {'action': 'DeliverAttempted', 'date': d, 'employee': docRef}
+            ]),
+            'state': 'DeliverAttempted',
+          })
+          .then((value) => isUpdated = true)
+          .catchError((error) => updateError = error);
 
-    print(isUpdated);
-
-    if (isUpdated) {
       return DatabaseResult.Success;
-    } else {
-      return DatabaseResult.Failed;
+    } catch (e) {
+      if (isUpdated) {
+        return DatabaseResult.Success;
+      } else {
+        return DatabaseResult.Failed;
+      }
     }
+  }
+
+  Future<List<double>> getAddress(adnum, city, street1, street2) async {
+    CollectionReference addLoc = _firestore.collection('AddressLocations');
+    var serviceCollection = addLoc
+        .where('address.addressNumber', isEqualTo: adnum)
+        .where('address.city', isEqualTo: city)
+        .where('address.street1', isEqualTo: street1)
+        .where('address.street2', isEqualTo: street2);
+
+    QuerySnapshot collectionSnapshot = await serviceCollection.get();
+    List<DocumentSnapshot> templist = collectionSnapshot.docs;
+    if (templist.length == 1) {
+      DocumentSnapshot docSnapshot = templist[0];
+      Map<String, dynamic> datap = docSnapshot.data()! as Map<String, dynamic>;
+      return [datap['location'].latitude, datap['location'].longitude];
+    } else {
+      return [0.0, 0.0];
+    }
+  }
+
+  Future<bool> addAddress(String adnum, String street1, String street2,
+      String city, double latitude, double longitude, bool update) async {
+    bool isAdded = false;
+    bool isUpdated = false;
+    var updateError;
+    var erroradd;
+    GeoPoint point = GeoPoint(latitude, longitude);
+    CollectionReference addLoc = _firestore.collection('AddressLocations');
+    var serviceCollection = addLoc
+        .where('address.addressNumber', isEqualTo: adnum)
+        .where('address.city', isEqualTo: city)
+        .where('address.street1', isEqualTo: street1)
+        .where('address.street2', isEqualTo: street2);
+
+    QuerySnapshot collectionSnapshot = await serviceCollection.get();
+    List<DocumentSnapshot> templist = collectionSnapshot.docs;
+    if (templist.isEmpty) {
+      await addLoc
+          .add({
+            "address": {
+              "addressNumber": adnum,
+              "city": city,
+              "street1": street1,
+              "street2": street2
+            },
+            "location": point,
+          })
+          .then((value) => isAdded = true)
+          .catchError((error) => erroradd = error);
+    } else if (templist.length == 1) {
+      if (update) {
+        DocumentReference documentReference = addLoc.doc(templist[0].id);
+        await documentReference
+            .update({
+              'location': point,
+            })
+            .then((value) => isUpdated = true)
+            .catchError((error) => updateError = error);
+      }
+    }
+    return isUpdated || isAdded;
   }
 }

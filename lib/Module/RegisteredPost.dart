@@ -64,7 +64,7 @@ class RegisteredPost extends PostItem {
 
   @override
   handleFailedDelivery(uid) async {
-    return await NetworkService().PostFailed(uid, docID);
+    return await NetworkService().PostFailed(uid, docID, this);
   }
 
   @override
@@ -76,10 +76,11 @@ class RegisteredPost extends PostItem {
 
   restorePost() {}
 
-  factory RegisteredPost.fromJson(Map<dynamic, dynamic> json, String docID) =>
+  factory RegisteredPost.fromJson(
+          Map<dynamic, dynamic> json, String docID, locDetails) =>
       RegisteredPost(
         pid: json["pid"],
-        loc: [],
+        loc: locDetails,
         docID: docID,
         cost: json["cost"].toString(),
         acceptedPO: json["acceptedPostoffice"],
@@ -121,7 +122,7 @@ class RegisteredPost extends PostItem {
         "type": "RegisteredPost",
         "histories": [
           {
-            'action': 'delivered',
+            'action': 'Delivered',
             "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
             "date": day,
           }

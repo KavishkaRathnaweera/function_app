@@ -130,7 +130,7 @@ class _PostmanScreenState extends State<PostmanScreen> {
                               childCard: reusableIconText(
                                 name: 'Remaining',
                                 number: Provider.of<PostData>(context)
-                                    .getNormalPostList
+                                    .getRegisteredPostList
                                     .length,
                                 color: Colors.blueGrey,
                               ),

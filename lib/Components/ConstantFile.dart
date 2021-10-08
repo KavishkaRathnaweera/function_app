@@ -21,9 +21,10 @@ enum PostAction {
   Fail,
 }
 
-enum DatabaseResult{
+enum DatabaseResult {
   Success,
   OnlyDelete,
   OnlyAdded,
   Failed,
+  AddressFail,
 }

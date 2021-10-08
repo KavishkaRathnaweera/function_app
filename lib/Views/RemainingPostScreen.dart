@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:function_app/Components/Alerts.dart';
+import 'package:function_app/Components/CurrentLocation.dart';
 import 'package:function_app/Components/DrawerChild.dart';
 import 'package:function_app/Components/TextWrite.dart';
 import 'package:function_app/Module/PostItem.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Components/ConstantFile.dart';
@@ -20,6 +22,14 @@ class RemainingPostScreen extends StatefulWidget {
 class _RemainingPostScreenState extends State<RemainingPostScreen> {
   late PostType postType;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late Position initLocation;
+
+  // @override
+  // Future<void> initState()  {
+  //   // initLocation =
+  //   //     await LocationService.getPosition(LocationConstant.CurrentPosition);
+  //   super.initState();
+  // }
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
@@ -70,6 +80,19 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
   }
 
   void acceptButton(signature, type, PostItem postItem) async {
+    var locCoordinates = await CurrentLocation.getCurrentLocation(context);
+    if (locCoordinates == null) {
+      locCoordinates = Position(
+          longitude: 0.0,
+          latitude: 0.0,
+          timestamp: DateTime(2),
+          accuracy: 0.0,
+          altitude: 0.0,
+          heading: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0);
+      print('sss');
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {

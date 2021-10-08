@@ -70,10 +70,11 @@ class PackagePost extends PostItem {
     signature = value;
   }
 
-  factory PackagePost.fromJson(Map<dynamic, dynamic> json, String docID) =>
+  factory PackagePost.fromJson(
+          Map<dynamic, dynamic> json, String docID, locDetails) =>
       PackagePost(
         pid: json["pid"],
-        loc: [],
+        loc: locDetails,
         docID: docID,
         cost: json["cost"].toString(),
         acceptedPO: json["acceptedPostoffice"],
@@ -115,10 +116,10 @@ class PackagePost extends PostItem {
           "senderName": senderName,
           "senderEmail": senderEmail,
         },
-        "type": "PackagePost",
+        "type": "Package",
         "histories": [
           {
-            'action': 'delivered',
+            "action": "Delivered",
             "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
             "date": day,
           }
@@ -140,7 +141,7 @@ class PackagePost extends PostItem {
 
   @override
   handleFailedDelivery(uid) async {
-    return await NetworkService().PostFailed(uid, docID);
+    return await NetworkService().PostFailed(uid, docID, this);
   }
 
   @override

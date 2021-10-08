@@ -8,6 +8,7 @@ import 'package:function_app/Components/DrawerChild.dart';
 import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Constants.dart';
 import 'package:function_app/Components/ReusableButton.dart';
+import 'package:function_app/Services/NetworkServices.dart';
 
 class AddAddress extends StatefulWidget {
   const AddAddress({Key? key}) : super(key: key);
@@ -149,7 +150,10 @@ class _AddAddressState extends State<AddAddress> {
               ),
               ReusableButton(
                   buttonColor: Colors.black54,
-                  onPressed: () {},
+                  onPressed: () async {
+                    // await NetworkService().addAddress(
+                    //     '78', 'matara', '', 'akuressa', 78.8888, 87.5685, true);
+                  },
                   label: 'Submit')
             ],
           ),
