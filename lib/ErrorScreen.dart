@@ -16,7 +16,7 @@ class SomethingWentWrong extends StatelessWidget {
               width: 50,
             ),
             Text(
-              'Something Went Wrong',
+              'Something Went Wrong. Please Try again',
               style: TextStyle(color: Colors.red[900], height: 10),
             )
           ],
