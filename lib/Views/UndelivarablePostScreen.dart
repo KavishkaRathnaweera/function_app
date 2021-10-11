@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:function_app/Components/AddressNameTile.dart';
 import 'package:function_app/Components/Alerts.dart';
 import 'package:function_app/Components/DrawerChild.dart';
-import 'package:function_app/Components/TextWrite.dart';
+import 'package:function_app/Components/SignatureTile.dart';
 import 'package:function_app/Module/PostItem.dart';
+import 'package:function_app/Services/LocationServices.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Components/ConstantFile.dart';
@@ -20,6 +23,7 @@ class UndeliverablePostScreen extends StatefulWidget {
 class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
   late PostType postType;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late bool locAvailable;
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
@@ -46,6 +50,21 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
   }
 
   void acceptButtonUndeliverable(signature, type, PostItem postItem) async {
+    var locCoordinates = await LocationService.getCurrentPosition();
+    if (locCoordinates == null) {
+      locAvailable = false;
+      locCoordinates = Position(
+          longitude: 0.0,
+          latitude: 0.0,
+          timestamp: DateTime(2),
+          accuracy: 0.0,
+          altitude: 0.0,
+          heading: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0);
+    } else {
+      locAvailable = true;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -57,18 +76,8 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
+                AddressNameTile(postItem: postItem),
                 SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -77,7 +86,9 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
+                                    signature,
+                                    _auth.currentUser!.uid,
+                                    locCoordinates);
                             handleDatabaseResult(
                                 result, postItem, PostType.NormalPost);
                           },
@@ -100,24 +111,8 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
-                SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                TextWriteWidget('Signature:', 20.0),
-                SizedBox(height: 5.0),
-                Image.memory(
-                  signature,
-                  height: 50.0,
-                ),
+                AddressNameTile(postItem: postItem),
+                SignatureTile(signature: signature),
                 Divider(),
                 SizedBox(height: 20.0),
                 Row(
@@ -128,7 +123,9 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
+                                    signature,
+                                    _auth.currentUser!.uid,
+                                    locCoordinates);
                             handleDatabaseResult(
                                 result, postItem, PostType.RegisteredPost);
                           },
@@ -151,24 +148,8 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
-                SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                TextWriteWidget('Signature:', 20.0),
-                SizedBox(height: 5.0),
-                Image.memory(
-                  signature,
-                  height: 50.0,
-                ),
+                AddressNameTile(postItem: postItem),
+                SignatureTile(signature: signature),
                 Divider(),
                 SizedBox(height: 20.0),
                 Row(
@@ -179,7 +160,9 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
+                                    signature,
+                                    _auth.currentUser!.uid,
+                                    locCoordinates);
                             handleDatabaseResult(
                                 result, postItem, PostType.Package);
                           },

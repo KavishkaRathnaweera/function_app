@@ -8,7 +8,9 @@ import 'package:function_app/Components/DrawerChild.dart';
 import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Constants.dart';
 import 'package:function_app/Components/ReusableButton.dart';
+import 'package:function_app/Services/EmailService.dart';
 import 'package:function_app/Services/NetworkServices.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class AddAddress extends StatefulWidget {
   const AddAddress({Key? key}) : super(key: key);
@@ -151,6 +153,10 @@ class _AddAddressState extends State<AddAddress> {
               ReusableButton(
                   buttonColor: Colors.black54,
                   onPressed: () async {
+                    // EmailSender.sendMail(
+                    //     receiver: 'kyasinrathnaweera@gmail.com',
+                    //     subject: 'Your post delivered',
+                    //     body: 'now');
                     // await NetworkService().addAddress(
                     //     '78', 'matara', '', 'akuressa', 78.8888, 87.5685, true);
                   },

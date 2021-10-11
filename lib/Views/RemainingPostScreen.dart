@@ -1,10 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:function_app/Components/AddressNameTile.dart';
 import 'package:function_app/Components/Alerts.dart';
 import 'package:function_app/Components/CurrentLocation.dart';
 import 'package:function_app/Components/DrawerChild.dart';
+import 'package:function_app/Components/SignatureTile.dart';
 import 'package:function_app/Components/TextWrite.dart';
 import 'package:function_app/Module/PostItem.dart';
+import 'package:function_app/Services/LocationServices.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:function_app/StateManagement/PostData.dart';
@@ -23,6 +27,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
   late PostType postType;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late Position initLocation;
+  late bool locAvailable;
 
   // @override
   // Future<void> initState()  {
@@ -80,8 +85,9 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
   }
 
   void acceptButton(signature, type, PostItem postItem) async {
-    var locCoordinates = await CurrentLocation.getCurrentLocation(context);
+    var locCoordinates = await LocationService.getCurrentPosition();
     if (locCoordinates == null) {
+      locAvailable = false;
       locCoordinates = Position(
           longitude: 0.0,
           latitude: 0.0,
@@ -91,208 +97,188 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
           heading: 0.0,
           speed: 0.0,
           speedAccuracy: 0.0);
-      print('sss');
+    } else {
+      locAvailable = true;
     }
     showModalBottomSheet(
       context: context,
       builder: (context) {
         //return Provider.value(value: myModel, child: BottomSheetCreate());
         if (type == PostType.NormalPost) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
-                SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: TextButton(
+          return ListView(children: [
+            Container(
+              margin: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AddressNameTile(postItem: postItem),
+                  SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                            onPressed: () async {
+                              DatabaseResult result =
+                                  await postItem.handleSuccessfulDelivery(
+                                      signature,
+                                      _auth.currentUser!.uid,
+                                      locCoordinates);
+                              handleDatabaseResult(
+                                  result, postItem, PostType.NormalPost);
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                            ),
+                            child: Text('Delivered',
+                                style: TextStyle(color: Colors.green))),
+                      ),
+                      SizedBox(width: 20.0),
+                      Expanded(
+                        child: TextButton(
                           onPressed: () async {
                             DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
-                            handleDatabaseResult(
+                                await postItem.handleFailedDelivery(
+                                    _auth.currentUser!.uid, locCoordinates);
+                            handleDBFailedDelivery(
                                 result, postItem, PostType.NormalPost);
                           },
+                          child: Text('Failed',
+                              style: TextStyle(color: Colors.red)),
                           style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.all<Color>(Colors.black),
                           ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.NormalPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  LocationTile(locAvailable: locAvailable),
+                ],
+              ),
             ),
-          );
+          ]);
         } else if (type == PostType.RegisteredPost) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
-                SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                TextWriteWidget('Signature:', 20.0),
-                SizedBox(height: 5.0),
-                Image.memory(
-                  signature,
-                  height: 50.0,
-                ),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: TextButton(
+          return ListView(children: [
+            Container(
+              margin: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AddressNameTile(postItem: postItem),
+                  SignatureTile(signature: signature),
+                  Divider(),
+                  SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                            onPressed: () async {
+                              DatabaseResult result =
+                                  await postItem.handleSuccessfulDelivery(
+                                      signature,
+                                      _auth.currentUser!.uid,
+                                      locCoordinates);
+                              handleDatabaseResult(
+                                  result, postItem, PostType.RegisteredPost);
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                            ),
+                            child: Text('Delivered',
+                                style: TextStyle(color: Colors.green))),
+                      ),
+                      SizedBox(width: 20.0),
+                      Expanded(
+                        child: TextButton(
                           onPressed: () async {
                             DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
-                            handleDatabaseResult(
+                                await postItem.handleFailedDelivery(
+                                    _auth.currentUser!.uid, locCoordinates);
+                            handleDBFailedDelivery(
                                 result, postItem, PostType.RegisteredPost);
                           },
+                          child: Text('Failed',
+                              style: TextStyle(color: Colors.red)),
                           style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.all<Color>(Colors.black),
                           ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.RegisteredPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  LocationTile(locAvailable: locAvailable),
+                ],
+              ),
             ),
-          );
+          ]);
         } else if (type == PostType.Package) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
-                SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                TextWriteWidget('Signature:', 20.0),
-                SizedBox(height: 5.0),
-                Divider(),
-                Image.memory(
-                  signature,
-                  height: 50.0,
-                ),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: TextButton(
+          return ListView(children: [
+            Container(
+              margin: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AddressNameTile(postItem: postItem),
+                  SignatureTile(signature: signature),
+                  Divider(),
+                  SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                            onPressed: () async {
+                              DatabaseResult result =
+                                  await postItem.handleSuccessfulDelivery(
+                                      signature,
+                                      _auth.currentUser!.uid,
+                                      locCoordinates);
+                              handleDatabaseResult(
+                                  result, postItem, PostType.Package);
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                            ),
+                            child: Text('Delivered',
+                                style: TextStyle(color: Colors.green))),
+                      ),
+                      SizedBox(width: 20.0),
+                      Expanded(
+                        child: TextButton(
                           onPressed: () async {
                             DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
-                            handleDatabaseResult(
+                                await postItem.handleFailedDelivery(
+                                    _auth.currentUser!.uid, locCoordinates);
+                            handleDBFailedDelivery(
                                 result, postItem, PostType.Package);
                           },
+                          child: Text('Failed',
+                              style: TextStyle(color: Colors.red)),
                           style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.all<Color>(Colors.black),
                           ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .handleFailedDelivery(_auth.currentUser!.uid);
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.Package);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  LocationTile(locAvailable: locAvailable),
+                ],
+              ),
             ),
-          );
+          ]);
         } else {
           return Column();
         }
@@ -371,6 +357,32 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
       floatingActionButton: SearchFunction(
         postType: postType,
       ),
+    );
+  }
+}
+
+class LocationTile extends StatelessWidget {
+  const LocationTile({
+    required this.locAvailable,
+  });
+  final bool locAvailable;
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: (locAvailable)
+          ? Text('Location of this address will added to the system',
+              style: TextStyle(color: Colors.green[900]))
+          : Text('Location Disabled. Address adding function will not work',
+              style: TextStyle(color: Colors.red[900])),
+      leading: (locAvailable)
+          ? Icon(
+              Icons.check,
+              color: Colors.green,
+            )
+          : Icon(
+              Icons.error,
+              color: Colors.red[900],
+            ),
     );
   }
 }

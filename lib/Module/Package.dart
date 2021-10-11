@@ -140,15 +140,26 @@ class PackagePost extends PostItem {
   }
 
   @override
-  handleFailedDelivery(uid) async {
-    return await NetworkService().PostFailed(uid, docID, this);
+  handleFailedDelivery(uid, locPosition) async {
+    if (location[0] == 0.0) {
+      setLocation([locPosition.latitude, locPosition.longitude]);
+      return await NetworkService().PostFailed(uid, docID, this, true);
+    } else {
+      return await NetworkService().PostFailed(uid, docID, this, false);
+    }
   }
 
   @override
-  handleSuccessfulDelivery(signature, uid) async {
-    // TODO: add signature function
-    return await NetworkService()
-        .PostDeliverySignature(uid, docID, this, signature);
+  handleSuccessfulDelivery(signature, uid, locPosition) async {
+    if (location[0] == 0.0) {
+      setLocation([locPosition.latitude, locPosition.longitude]);
+      // TODO: add signature function
+      return await NetworkService()
+          .PostDeliverySignature(uid, docID, this, signature, true);
+    } else {
+      return await NetworkService()
+          .PostDeliverySignature(uid, docID, this, signature, false);
+    }
   }
 
   restorePost() {}

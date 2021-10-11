@@ -34,13 +34,24 @@ class NormalPost extends PostItem {
             destinationPO: destinationPO);
 
   @override
-  Future<DatabaseResult> handleFailedDelivery(uid) async {
-    return await NetworkService().PostFailed(uid, docID, this);
+  Future<DatabaseResult> handleFailedDelivery(uid, locPosition) async {
+    if (location[0] == 0.0) {
+      setLocation([locPosition.latitude, locPosition.longitude]);
+      return await NetworkService().PostFailed(uid, docID, this, true);
+    } else {
+      return await NetworkService().PostFailed(uid, docID, this, false);
+    }
   }
 
   @override
-  Future<DatabaseResult> handleSuccessfulDelivery(signature, uid) async {
-    return await NetworkService().PostDelivery(uid, docID, this);
+  Future<DatabaseResult> handleSuccessfulDelivery(
+      signature, uid, locPosition) async {
+    if (location[0] == 0.0) {
+      setLocation([locPosition.latitude, locPosition.longitude]);
+      return await NetworkService().PostDelivery(uid, docID, this, true);
+    } else {
+      return await NetworkService().PostDelivery(uid, docID, this, false);
+    }
   }
 
   restorePost() {}

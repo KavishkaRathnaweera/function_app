@@ -1,14 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:function_app/Module/PostItem.dart';
+import 'package:function_app/Services/LocationServices.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Views/SignatureView.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:search_page/search_page.dart';
+import 'AddressNameTile.dart';
 import 'Alerts.dart';
 import 'ConstantFile.dart';
 import 'package:provider/provider.dart';
 import 'package:function_app/Views/UndelivarablePostScreen.dart';
 
+import 'SignatureTile.dart';
 import 'TextWrite.dart';
 
 class SearchFunctionUndelivered extends StatefulWidget {
@@ -24,6 +28,7 @@ class SearchFunctionUndelivered extends StatefulWidget {
 class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
   late List<PostItem> postItems;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late bool locAvailable;
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
@@ -51,6 +56,21 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
   }
 
   acceptButton(signature, type, PostItem postItem) async {
+    var locCoordinates = await LocationService.getCurrentPosition();
+    if (locCoordinates == null) {
+      locAvailable = false;
+      locCoordinates = Position(
+          longitude: 0.0,
+          latitude: 0.0,
+          timestamp: DateTime(2),
+          accuracy: 0.0,
+          altitude: 0.0,
+          heading: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0);
+    } else {
+      locAvailable = true;
+    }
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -62,18 +82,8 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
+                AddressNameTile(postItem: postItem),
                 SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -82,7 +92,9 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
+                                    signature,
+                                    _auth.currentUser!.uid,
+                                    locCoordinates);
                             handleDatabaseResult(
                                 result, postItem, PostType.NormalPost);
                           },
@@ -105,24 +117,8 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}',
-                    15.0),
-                Divider(),
-                SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                TextWriteWidget('Signature:', 20.0),
-                SizedBox(height: 5.0),
-                Image.memory(
-                  signature,
-                  height: 50.0,
-                ),
+                AddressNameTile(postItem: postItem),
+                SignatureTile(signature: signature),
                 Divider(),
                 SizedBox(height: 20.0),
                 Row(
@@ -133,7 +129,9 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
+                                    signature,
+                                    _auth.currentUser!.uid,
+                                    locCoordinates);
                             handleDatabaseResult(
                                 result, postItem, PostType.NormalPost);
                           },
@@ -156,24 +154,8 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextWriteWidget('Address:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget(
-                    '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road,${postItem.getRecipientStreet2} ,${postItem.getRecipientCity}, ',
-                    15.0),
-                Divider(),
-                SizedBox(height: 10.0),
-                TextWriteWidget('Name:', 20.0),
-                SizedBox(height: 5.0),
-                TextWriteWidget('${postItem.getRecipientName}', 15.0),
-                Divider(),
-                SizedBox(height: 20.0),
-                TextWriteWidget('Signature:', 20.0),
-                SizedBox(height: 5.0),
-                Image.memory(
-                  signature,
-                  height: 50.0,
-                ),
+                AddressNameTile(postItem: postItem),
+                SignatureTile(signature: signature),
                 Divider(),
                 SizedBox(height: 20.0),
                 Row(
@@ -184,7 +166,9 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
-                                    signature, _auth.currentUser!.uid);
+                                    signature,
+                                    _auth.currentUser!.uid,
+                                    locCoordinates);
                             handleDatabaseResult(
                                 result, postItem, PostType.NormalPost);
                           },

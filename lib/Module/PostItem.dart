@@ -57,12 +57,12 @@ abstract class PostItem {
     isPending = value;
   }
 
-  setLocation(v) {
+  setLocation(List<double> v) {
     location = v;
   }
 
-  handleSuccessfulDelivery(signature, uid);
-  handleFailedDelivery(uid);
+  handleSuccessfulDelivery(signature, uid, locPosition);
+  handleFailedDelivery(uid, locPosition);
   restorePost();
 }
 
