@@ -5,6 +5,7 @@ import 'package:function_app/Module/NormalPost.dart';
 import 'package:function_app/Module/Package.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Module/RegisteredPost.dart';
+import 'package:function_app/Services/EmailService.dart';
 
 class NetworkService {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -309,10 +310,10 @@ class NetworkService {
           .then((value) => isAdded = true)
           .catchError((error) => erroradd = error);
       print('b');
-      // await documentReference
-      //     .delete()
-      //     .then((value) => isDeleted = true)
-      //     .catchError((error) => errorDel = error);
+      await documentReference
+          .delete()
+          .then((value) => isDeleted = true)
+          .catchError((error) => errorDel = error);
 
       if (postRef.location[0] != 0.0 && updateAddress) {
         await addAddress(
@@ -355,17 +356,17 @@ class NetworkService {
           FirebaseFirestore.instance.collection('PendingMails').doc(docID);
       CollectionReference users = _firestore.collection('DeliveredMails');
       await users
-          .add(postRef.toJson(uid, signature, d))
+          .doc(docID)
+          .set(postRef.toJson(uid, signature, d))
           .then((value) => isAdded = true)
           .catchError((error) => erroradd = error);
 
-      // await documentReference
-      //     .delete()
-      //     .then((value) => isDeleted = true)
-      //     .catchError((error) => errorDel = error);
+      await documentReference
+          .delete()
+          .then((value) => isDeleted = true)
+          .catchError((error) => errorDel = error);
 
-      print(postRef.location[0]);
-      if (postRef.location[0] != 0.0 && updateAddress) {
+      if (postRef.location[0] == 0.0 && updateAddress) {
         await addAddress(
             postRef.recipientAddressNUmber,
             postRef.recipientStreet1,
@@ -375,6 +376,7 @@ class NetworkService {
             postRef.location[1],
             false);
       }
+      await EmailSender.deliveredEmailOperator(postRef);
       return DatabaseResult.Success;
     } catch (e) {
       if (isAdded && isDeleted) {
@@ -419,11 +421,49 @@ class NetworkService {
             postRef.location[1],
             false);
       }
+      await EmailSender.failedEmailOperator(postRef);
 
       return DatabaseResult.Success;
     } catch (e) {
       if (isUpdated) {
         return DatabaseResult.Success;
+      } else {
+        return DatabaseResult.Failed;
+      }
+    }
+  }
+
+  Future<DatabaseResult> PostRestore(uid, docID, postRef) async {
+    bool isAdded = false;
+    bool isDeleted = true;
+    var erroradd;
+    var errorDel;
+    var initLocation;
+    try {
+      DocumentReference documentReference =
+          _firestore.collection('DeliveredMails').doc(docID);
+      CollectionReference users = _firestore.collection('PendingMails');
+
+      await users
+          .doc(docID)
+          .set(postRef.toJsonPending(uid))
+          .then((value) => isAdded = true)
+          .catchError((error) => erroradd = error);
+
+      await documentReference
+          .delete()
+          .then((value) => isDeleted = true)
+          .catchError((error) => errorDel = error);
+
+      return DatabaseResult.Success;
+    } catch (e) {
+      print('error');
+      if (isAdded && isDeleted) {
+        return DatabaseResult.Success;
+      } else if (isAdded && !isDeleted) {
+        return DatabaseResult.OnlyAdded;
+      } else if (isAdded && isDeleted) {
+        return DatabaseResult.OnlyDelete;
       } else {
         return DatabaseResult.Failed;
       }

@@ -63,7 +63,7 @@ abstract class PostItem {
 
   handleSuccessfulDelivery(signature, uid, locPosition);
   handleFailedDelivery(uid, locPosition);
-  restorePost();
+  restorePost(uid);
 }
 
 /*

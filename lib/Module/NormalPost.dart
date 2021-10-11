@@ -54,7 +54,9 @@ class NormalPost extends PostItem {
     }
   }
 
-  restorePost() {}
+  Future<DatabaseResult> restorePost(uid) async {
+    return await NetworkService().PostRestore(uid, docID, this);
+  }
 
   factory NormalPost.fromJson(
           Map<dynamic, dynamic> json, String docID, locDetails) =>
@@ -94,6 +96,30 @@ class NormalPost extends PostItem {
           }
         ],
         "state": "Delivered",
+        "senderDetails": {},
+        "cost": cost,
+        "timestamp": Timestamp.now(),
+      };
+
+  Map<String, dynamic> toJsonPending(uid) => {
+        "pid": pid,
+        "acceptedPostoffice": acceptedPO,
+        "destinationPostoffice": destinationPO,
+        "recipientDetails": {
+          "recipientAddressNo": recipientAddressNUmber,
+          "recipientStreet1": recipientStreet1,
+          "recipientStreet2": recipientStreet2,
+          "recipientCity": recipientCity,
+          "recipientName": recipientName
+        },
+        "type": "NormalPost",
+        "histories": [
+          {
+            "action": "Assigned",
+            "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
+          }
+        ],
+        "state": "Assigned",
         "senderDetails": {},
         "cost": cost,
         "timestamp": Timestamp.now(),

@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:function_app/Components/Alerts.dart';
 import 'package:function_app/Components/DrawerChild.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +17,30 @@ class DeliveredPostScreen extends StatefulWidget {
 
 class _DeliveredPostScreen extends State<DeliveredPostScreen> {
   late PostType postType;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  void handleDatabaseResult(result, postItem, postType) {
+    if (result == DatabaseResult.Success) {
+      if (postType == PostType.NormalPost) {
+        Provider.of<PostData>(context, listen: false)
+            .removeNormalPostDelievered(postItem);
+      } else if (postType == PostType.RegisteredPost) {
+        Provider.of<PostData>(context, listen: false)
+            .removeRegisteredPostDelievered(postItem);
+      } else if (postType == PostType.Package) {
+        Provider.of<PostData>(context, listen: false)
+            .removePackagePostDelievered(postItem);
+      }
+      AlertBox.showMyDialog(context, 'Successful', 'Data Updated', () {
+        Navigator.of(context).pop();
+      }, Colors.green[900]);
+    } else {
+      AlertBox.showMyDialog(
+          context, 'Failed', 'Check your Connection and Try again', () {
+        Navigator.of(context).pop();
+      }, Colors.red[900]);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +83,10 @@ class _DeliveredPostScreen extends State<DeliveredPostScreen> {
                           '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}'),
                       subtitle: Text('${postItem.getRecipientName}'),
                       trailing: TextButton(
-                        onPressed: () {
-                          if (postType == PostType.NormalPost) {
-                            postdata.removeNormalPostDelievered(postItem);
-                          } else if (postType == PostType.RegisteredPost) {
-                            postdata.removeRegisteredPostDelievered(postItem);
-                          } else if (postType == PostType.Package) {
-                            postdata.removePackagePostDelievered(postItem);
-                          }
+                        onPressed: () async {
+                          DatabaseResult result = await postItem
+                              .restorePost(_auth.currentUser!.uid);
+                          handleDatabaseResult(result, postItem, postType);
                         },
                         child: Text('Restore'),
                       ),

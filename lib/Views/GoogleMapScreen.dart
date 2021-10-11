@@ -33,8 +33,6 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
           markerId: MarkerId('Current'),
           position: LatLng(initLocation.latitude, initLocation.longitude),
         );
-        print(initLocation.latitude);
-        print(initLocation.longitude);
         Provider.of<Data>(context, listen: false).markers.add(mark);
       });
     } on LocationServiceDisabledException catch (e) {

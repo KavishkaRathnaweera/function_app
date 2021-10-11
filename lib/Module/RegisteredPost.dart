@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Services/NetworkServices.dart';
 
@@ -85,7 +86,9 @@ class RegisteredPost extends PostItem {
     }
   }
 
-  restorePost() {}
+  Future<DatabaseResult> restorePost(uid) async {
+    return await NetworkService().PostRestore(uid, docID, this);
+  }
 
   factory RegisteredPost.fromJson(
           Map<dynamic, dynamic> json, String docID, locDetails) =>
@@ -141,6 +144,38 @@ class RegisteredPost extends PostItem {
         "state": "Delivered",
         "cost": cost,
         "signature": "signatureRef",
+        "timestamp": Timestamp.now(),
+      };
+
+  Map<String, dynamic> toJsonPending(uid) => {
+        "pid": pid,
+        "acceptedPostoffice": acceptedPO,
+        "destinationPostoffice": destinationPO,
+        "recipientDetails": {
+          "recipientAddressNo": recipientAddressNUmber,
+          "recipientStreet1": recipientStreet1,
+          "recipientStreet2": recipientStreet2,
+          "recipientCity": recipientCity,
+          "recipientName": recipientName
+        },
+        "senderDetails": {
+          "senderAddressNo": senderAddressNUmber,
+          "senderStreet1": senderStreet1,
+          "senderStreet2": senderStreet2,
+          "senderCity": senderCity,
+          "senderName": senderName,
+          "senderEmail": senderEmail,
+        },
+        "type": "RegisteredPost",
+        "histories": [
+          {
+            'action': 'Assigned',
+            "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
+          }
+        ],
+        "state": "Assigned",
+        "cost": cost,
+        "signature": "",
         "timestamp": Timestamp.now(),
       };
 

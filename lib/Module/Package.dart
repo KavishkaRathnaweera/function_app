@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Services/NetworkServices.dart';
 
@@ -131,6 +132,40 @@ class PackagePost extends PostItem {
         "weight": weight,
       };
 
+  Map<String, dynamic> toJsonPending(uid) => {
+        "pid": pid,
+        "acceptedPostoffice": acceptedPO,
+        "destinationPostoffice": destinationPO,
+        "recipientDetails": {
+          "recipientAddressNo": recipientAddressNUmber,
+          "recipientStreet1": recipientStreet1,
+          "recipientStreet2": recipientStreet2,
+          "recipientCity": recipientCity,
+          "recipientName": recipientName,
+          "recipientEmail": receiverEmail,
+        },
+        "senderDetails": {
+          "senderAddressNo": senderAddressNUmber,
+          "senderStreet1": senderStreet1,
+          "senderStreet2": senderStreet2,
+          "senderCity": senderCity,
+          "senderName": senderName,
+          "senderEmail": senderEmail,
+        },
+        "type": "Package",
+        "histories": [
+          {
+            "action": "Assigned",
+            "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
+          }
+        ],
+        "cost": cost,
+        "signature": "",
+        "state": "Assigned",
+        "timestamp": Timestamp.now(),
+        "weight": weight,
+      };
+
   String toString() {
     return 'Student: {pid: ${pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
         'recStreet1 : ${recipientStreet1},recStreet2: ${recipientStreet2}, recCity : ${recipientCity}, recEmail : ${receiverEmail} ,ispending : ${isPending}, '
@@ -162,5 +197,7 @@ class PackagePost extends PostItem {
     }
   }
 
-  restorePost() {}
+  Future<DatabaseResult> restorePost(uid) async {
+    return await NetworkService().PostRestore(uid, docID, this);
+  }
 }

@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:function_app/Module/Package.dart';
+import 'package:function_app/Module/RegisteredPost.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 
 class EmailSender {
-  static void sendMail(
+  static Future<void> sendMail(
       {required String receiver,
       required String subject,
       required String body}) async {
@@ -10,10 +13,6 @@ class EmailSender {
     String password = '0710000000';
 
     final smtpServer = gmail(username, password);
-    // final sp = gmail(username, password);
-    // Use the SmtpServer class to configure an SMTP server:
-    // final smtpServer = SmtpServer('smtp.domain.com');
-    // See the named arguments of SmtpServer for further configuration
     // options.'This is the plain text.\nThis is line 2 of the text part.'
 
     // Create our message.
@@ -33,39 +32,6 @@ class EmailSender {
         print('Problem: ${p.code}: ${p.msg}');
       }
     }
-    // DONE
-
-    // Let's send another message using a slightly different syntax:
-    //
-    // Addresses without a name part can be set directly.
-    // For instance `..recipients.add('destination@example.com')`
-    // If you want to display a name part you have to create an
-    // Address object: `new Address('destination@example.com', 'Display name part')`
-    // Creating and adding an Address object without a name part
-    // `new Address('destination@example.com')` is equivalent to
-    // adding the mail address as `String`.
-    // final equivalentMessage = Message()
-    //   ..from = Address(username, 'Your name 😀')
-    //   ..recipients.add(Address('destination@example.com'))
-    //   ..ccRecipients
-    //       .addAll([Address('destCc1@example.com'), 'destCc2@example.com'])
-    //   ..bccRecipients.add('bccAddress@example.com')
-    //   ..subject = 'Test Dart Mailer library :: 😀 :: ${DateTime.now()}'
-    //   ..text = 'This is the plain text.\nThis is line 2 of the text part.'
-    //   ..html =
-    //       '<h1>Test</h1>\n<p>Hey! Here is some HTML content</p><img src="cid:myimg@3.141"/>'
-    //   ..attachments = [
-    //     FileAttachment(File('exploits_of_a_mom.png'))
-    //       ..location = Location.inline
-    //       ..cid = '<myimg@3.141>'
-    //   ];
-    //
-    // final sendReport2 = await send(equivalentMessage, smtpServer);
-
-    // Sending multiple messages with the same connection
-    //
-    // Create a smtp client that will persist the
-
     /*
     var connection = PersistentConnection(smtpServer);
 
@@ -79,5 +45,79 @@ class EmailSender {
     await connection.close();
 
     */
+  }
+
+  static Future<void> deliveredEmailOperator(postRef) async {
+    try {
+      var type;
+      if (postRef is RegisteredPost) {
+        type = 'Registered';
+      } else if (postRef is PackagePost) {
+        type = 'package';
+        String packageSub = '$type Post : PID ${postRef.pid}';
+        String packageBody = 'Dear ${postRef.recipientName}, \n\n'
+            'You have successfully collect the $type post.\n'
+            'PID : ${postRef.pid}\n'
+            'Sender name : ${postRef.senderName}\n'
+            'Sender address : No.${postRef.senderAddressNUmber}, ${postRef.senderStreet1} road, ${postRef.senderStreet2} ${postRef.senderCity}\n'
+            'Timestamp : ${DateTime.now()}\n\n'
+            'Thank you for using Our Postal service\n'
+            'Post Management System';
+        await sendMail(
+            receiver: postRef.receiverEmail,
+            subject: packageSub,
+            body: packageBody);
+      }
+      String subject = '$type Post : PID ${postRef.pid}';
+      String body = 'Dear ${postRef.senderName}, \n\n'
+          'Your $type post has been successfully delivered. \n'
+          'PID : ${postRef.pid}\n'
+          'Receiver name : ${postRef.recipientName}\n'
+          'Receiver address : No.${postRef.recipientAddressNUmber}, ${postRef.recipientStreet1} road, ${postRef.recipientStreet2} ${postRef.recipientCity}\n'
+          'Timestamp : ${DateTime.now()}\n\n'
+          'Thank you for using Our Postal service\n'
+          'Post Management System';
+      await sendMail(
+          receiver: postRef.senderEmail, subject: subject, body: body);
+    } catch (e) {
+      return;
+    }
+  }
+
+  static Future<void> failedEmailOperator(postRef) async {
+    try {
+      var type;
+      if (postRef is RegisteredPost) {
+        type = 'Registered';
+      } else if (postRef is PackagePost) {
+        type = 'package';
+        String packageSub = '$type Post : PID ${postRef.pid}';
+        String packageBody = 'Dear ${postRef.recipientName}, \n\n'
+            'Please come to post office in your area to collect the package post.\n'
+            'PID : ${postRef.pid}\n'
+            'Sender name : ${postRef.senderName}\n'
+            'Sender address : No.${postRef.senderAddressNUmber}, ${postRef.senderStreet1} road, ${postRef.senderStreet2} ${postRef.senderCity}\n'
+            'Timestamp : ${DateTime.now()}\n\n'
+            'Thank you for using Our Postal service\n'
+            'Post Management System';
+        await sendMail(
+            receiver: postRef.receiverEmail,
+            subject: packageSub,
+            body: packageBody);
+      }
+      String subject = '$type Post : PID ${postRef.pid}';
+      String body = 'Dear ${postRef.senderName}, \n\n'
+          'Your $type post cannot be delivered. \n'
+          'PID : ${postRef.pid}\n'
+          'Receiver name : ${postRef.recipientName}\n'
+          'Receiver address : No.${postRef.recipientAddressNUmber}, ${postRef.recipientStreet1} road, ${postRef.recipientStreet2} ${postRef.recipientCity}\n'
+          'Timestamp : ${DateTime.now()}\n\n'
+          'Thank you for using Our Postal service\n'
+          'Post Management System';
+      await sendMail(
+          receiver: postRef.senderEmail, subject: subject, body: body);
+    } catch (e) {
+      return;
+    }
   }
 }
