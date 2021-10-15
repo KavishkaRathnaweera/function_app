@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => Data()),
+        ChangeNotifierProvider(create: (context) => DeliveryData()),
         ChangeNotifierProvider(create: (context) => PostData()),
       ],
       child: MaterialApp(

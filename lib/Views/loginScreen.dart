@@ -36,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
           color: Colors.red.shade900,
         ),
         inAsyncCall: showSpinner,
-        //inAsyncCall: showSpinner,
         child: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -156,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final userDet =
           await NetworkService().getUserRole(userCredential.user!.uid);
       print(userDet['firstName']);
-      Provider.of<Data>(context, listen: false).userDetails = AppUser(
+      Provider.of<DeliveryData>(context, listen: false).userDetails = AppUser(
         lastName: userDet['lastName'],
         firstName: userDet['firstName'],
         nic: userDet['NIC'],

@@ -4,6 +4,7 @@ import 'package:function_app/Module/Package.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Module/RegisteredPost.dart';
 import 'package:function_app/Components/ConstantFile.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PostData extends ChangeNotifier {
   String uid = "";
@@ -210,118 +211,72 @@ class PostData extends ChangeNotifier {
     this._PackagePostListDelivered.remove(np);
     notifyListeners();
   }
+
+  Set<Marker> _markers = {};
+
+  Set<Marker> get markers => _markers;
+
+  addMarkerRemaining(List<PostItem> postList) {
+    if (postList.isNotEmpty) {
+      var type;
+      if (postList[0] is NormalPost) {
+        type = 'Normal';
+      } else if (postList[0] is RegisteredPost) {
+        type = 'Registered';
+      } else if (postList[0] is PackagePost) {
+        type = 'Package';
+      } else {
+        type = 'Unknown';
+      }
+      postList.forEach((element) {
+        if (element.location[0] != 0.0) {
+          final markerIntance = Marker(
+            markerId: MarkerId(element.pid),
+            infoWindow: InfoWindow(
+                title:
+                    '${element.recipientAddressNUmber} , ${element.getRecipientStreet1} road, ${element.getRecipientStreet2} ${element.getRecipientCity}',
+                snippet:
+                    'Name : ${element.recipientName} Type : $type post Remaining'),
+            position: LatLng(element.location[0], element.location[1]),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueOrange),
+          );
+          _markers.add(markerIntance);
+        }
+      });
+    }
+    notifyListeners();
+  }
+
+  addMarkerUndeliverable(List<PostItem> postList) {
+    if (postList.isNotEmpty) {
+      var type;
+      if (postList[0] is NormalPost) {
+        type = 'Normal';
+      } else if (postList[0] is RegisteredPost) {
+        type = 'Registered';
+      } else if (postList[0] is PackagePost) {
+        type = 'Package';
+      } else {
+        type = 'Unknown';
+      }
+      postList.forEach((element) {
+        if (element.location[0] != 0.0) {
+          final markerIntance = Marker(
+            markerId: MarkerId(element.pid),
+            infoWindow: InfoWindow(
+                title:
+                    '${element.recipientAddressNUmber} , ${element.getRecipientStreet1} road, ${element.getRecipientStreet2} ${element.getRecipientCity}',
+                snippet:
+                    'Name : ${element.recipientName} Type : $type post Undeliverable'),
+            position: LatLng(element.location[0], element.location[1]),
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          );
+          _markers.add(markerIntance);
+        }
+      });
+    }
+    notifyListeners();
+  }
 }
-
-/*
-    RegisteredPost(
-        'pid1',
-        [7.0246668, 79.9671238],
-        'Rkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle'),
-    RegisteredPost(
-        'pid2',
-        [7.0236778, 79.9682180],
-        'Rkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle'),
-    RegisteredPost(
-        'pid3',
-        [7.0266599, 79.9693317],
-        'Rkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle'),
-    RegisteredPost(
-        'pid4',
-        [7.0246720, 79.9673250],
-        'Rkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle'),
- */
-
-/*
-PackagePost(
-        'pid1',
-        [7.0246668, 79.9671238],
-        'Pkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle',
-        'kavishka@gmail.com',
-        20),
-    PackagePost(
-        'pid2',
-        [7.0236778, 79.9682180],
-        'Pkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle',
-        'kavishka@gmail.com',
-        20),
-    PackagePost(
-        'pid3',
-        [7.0266599, 79.9693317],
-        'Pkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle',
-        'kavishka@gmail.com',
-        20),
-    PackagePost(
-        'pid4',
-        [7.0246720, 79.9673250],
-        'Pkavishka',
-        '129',
-        'Batahena Rd',
-        'Kadawatha',
-        'charuka@gmail.com',
-        '222',
-        'colombo rd',
-        'Galle',
-        'kavishka@gmail.com',
-        20),
- */
-
-/*
-
-    NormalPost('pid1', [7.0246668, 79.9671238], '111kavishka', '129',
-        'Batahena Rd', 'Kadawatha'),
-    NormalPost('pid2', [7.0236778, 79.9682180], '222kavishka', '129',
-        'Batahena Rd', 'Kadawatha'),
-    NormalPost('pid3', [7.0266599, 79.9693317], '333kavishka', '129',
-        'Batahena Rd', 'Kadawatha'),
-    NormalPost('pid4', [7.0246720, 79.9673250], '44444kavishka', '129',
-        'Batahena Rd', 'Kadawatha'),
- */

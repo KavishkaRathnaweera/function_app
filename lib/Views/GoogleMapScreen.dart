@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:function_app/Components/Alerts.dart';
 import 'package:function_app/PostmanScreen.dart';
+import 'package:function_app/StateManagement/PostData.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -22,6 +23,12 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late LatLng latitudeLongitude = LatLng(6.927079, 79.861244);
   late LatLng currentCordinates;
 
+  void initState() {
+    getMapLocation();
+    getCurrentLocation();
+    super.initState();
+  }
+
   getCurrentLocation() async {
     try {
       Position initLocation =
@@ -33,7 +40,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
           markerId: MarkerId('Current'),
           position: LatLng(initLocation.latitude, initLocation.longitude),
         );
-        Provider.of<Data>(context, listen: false).markers.add(mark);
+        //Provider.of<PostData>(context, listen: false).markers.add(mark);
       });
     } on LocationServiceDisabledException catch (e) {
       print('hello,location serivce disables');
@@ -66,6 +73,25 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
     }
   }
 
+  getMapLocation() async {
+    //print(Provider.of<PostData>(context, listen: false).getNormalPostList);
+    Provider.of<PostData>(context, listen: false).addMarkerRemaining(
+        Provider.of<PostData>(context, listen: false).getNormalPostList);
+    Provider.of<PostData>(context, listen: false).addMarkerRemaining(
+        Provider.of<PostData>(context, listen: false).getRegisteredPostList);
+    Provider.of<PostData>(context, listen: false).addMarkerRemaining(
+        Provider.of<PostData>(context, listen: false).getPackagePostList);
+    Provider.of<PostData>(context, listen: false).addMarkerUndeliverable(
+        Provider.of<PostData>(context, listen: false)
+            .getNormalPostListUndelivereble);
+    Provider.of<PostData>(context, listen: false).addMarkerUndeliverable(
+        Provider.of<PostData>(context, listen: false)
+            .getRegisteredPostListUndeliverable);
+    Provider.of<PostData>(context, listen: false).addMarkerUndeliverable(
+        Provider.of<PostData>(context, listen: false)
+            .getPackagePostListUndeleverable);
+  }
+
   Future<dynamic> dialogLocationError(String title, String body) {
     return showDialog<String>(
       context: context,
@@ -85,14 +111,9 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
     );
   }
 
-  @override
-  void initState() {
-    getCurrentLocation();
-    super.initState();
-  }
-
   void onMapCreatedFunction(GoogleMapController controller) async {
     mapController = controller;
+    getMapLocation();
   }
 
   @override
@@ -108,7 +129,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
             target: latitudeLongitude,
             zoom: 18.0,
           ),
-          markers: Provider.of<Data>(context).markers,
+          markers: Provider.of<PostData>(context).markers,
         ),
       ),
     );

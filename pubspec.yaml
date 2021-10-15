@@ -48,4 +48,9 @@ flutter:
     - family: Spartan MB
       fonts:
         - asset: fonts/SpartanMB-Black.otf
-          weight: 500
+          weight: 100
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Black.ttf
+        - asset: fonts/Roboto-light.ttf
+          weight: 100

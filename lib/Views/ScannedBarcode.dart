@@ -17,12 +17,12 @@ class ScannedBarcode extends StatelessWidget {
       ),
       body: Container(
         margin: EdgeInsets.all(30.0),
-        child: Consumer<Data>(
+        child: Consumer<DeliveryData>(
           builder: (context, scanneddata, child) {
             return ListView.builder(
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: scanneddata.scannedList[index],
+                  title: Text('ddd'), //scanneddata.scannedList[index],
                 );
               },
               itemCount: scanneddata.scannedList.length,

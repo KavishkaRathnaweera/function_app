@@ -61,15 +61,15 @@ class _DrawerChildState extends State<DrawerChild> {
                 ),
               ),
               Text(
-                'Name   : ${Provider.of<Data>(context, listen: false).userDetails.firstName} '
-                '${Provider.of<Data>(context, listen: false).userDetails.lastName}',
+                'Name   : ${Provider.of<DeliveryData>(context, listen: false).userDetails.firstName} '
+                '${Provider.of<DeliveryData>(context, listen: false).userDetails.lastName}',
                 style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15.0,
                     color: Colors.black),
               ),
               Text(
-                'NIC No : ${Provider.of<Data>(context, listen: false).userDetails.nic}',
+                'NIC No : ${Provider.of<DeliveryData>(context, listen: false).userDetails.nic}',
                 style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 15.0,
