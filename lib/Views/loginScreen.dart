@@ -18,10 +18,10 @@ class LoginScreen extends StatefulWidget {
   static final String screenId = 'loginScreen';
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
   final _auth = FirebaseAuth.instance;
   late String userEmail = '';
   late String userPassword = '';
@@ -51,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: <Widget>[
                 Flexible(
                   child: Hero(
+                    key: Key('heroWidget'),
                     tag: 'SL Post',
                     child: Container(
                       height: 50.0,
@@ -95,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     userPassword = value;
                   },
                   decoration: kTextDecoration.copyWith(
-                    hintText: 'Enter your password.',
+                    hintText: 'Enter your password',
                   ),
                 ),
                 SizedBox(
@@ -211,8 +212,14 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushNamed(context, PostmanScreen.screenId);
       } else if (userDet['role'] == 'deliveryLogKeeper') {
         Navigator.pushNamed(context, DeliveryScreen.screenId);
+      } else {
+        AlertBox.showMyDialog(
+            context, 'Warning!', 'Permission Denied for this user', () {
+          Navigator.of(context).pop();
+        }, Colors.red[900]);
       }
     } on FirebaseAuthException catch (e) {
+      print('aaaaaaaaaaa');
       if (e.code == 'user-not-found') {
         AlertBox.showMyDialog(context, 'Error!', 'User email cannot recognized',
             () {

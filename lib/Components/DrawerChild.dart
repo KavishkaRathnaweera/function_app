@@ -55,7 +55,9 @@ class _DrawerChildState extends State<DrawerChild> {
                     Text(
                       'POSTMAN',
                       style: TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 20.0),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20.0,
+                          letterSpacing: 1.0),
                     ),
                   ],
                 ),
@@ -79,6 +81,7 @@ class _DrawerChildState extends State<DrawerChild> {
           ),
         ),
         ExpansionTile(
+          key: Key('normalPost'),
           title: TextWriteWidget('Normal Post', tSize),
           leading: Icon(
             Icons.local_post_office_rounded,
@@ -86,6 +89,7 @@ class _DrawerChildState extends State<DrawerChild> {
           ),
           children: <Widget>[
             ListTile(
+              key: Key('nRemain'),
               title: Text('Remaining Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -94,6 +98,7 @@ class _DrawerChildState extends State<DrawerChild> {
               },
             ),
             ListTile(
+              key: Key('nDelivered'),
               title: Text('Delivered Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -102,6 +107,7 @@ class _DrawerChildState extends State<DrawerChild> {
               },
             ),
             ListTile(
+              key: Key('nUndeliverable'),
               title: Text('Undeliverable Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -112,6 +118,7 @@ class _DrawerChildState extends State<DrawerChild> {
           ],
         ),
         ExpansionTile(
+          key: Key('registeredPost'),
           title: TextWriteWidget('Registered post', tSize),
           leading: Icon(
             Icons.post_add_rounded,
@@ -119,6 +126,7 @@ class _DrawerChildState extends State<DrawerChild> {
           ),
           children: <Widget>[
             ListTile(
+              key: Key('rRemain'),
               title: Text('Remaining Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -127,6 +135,7 @@ class _DrawerChildState extends State<DrawerChild> {
               },
             ),
             ListTile(
+              key: Key('rDelivered'),
               title: Text('Delivered Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -135,6 +144,7 @@ class _DrawerChildState extends State<DrawerChild> {
               },
             ),
             ListTile(
+              key: Key('rUndeliverable'),
               title: Text('Undeliverable Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -145,10 +155,12 @@ class _DrawerChildState extends State<DrawerChild> {
           ],
         ),
         ExpansionTile(
+          key: Key('packagePost'),
           title: TextWriteWidget('Package Post', tSize),
           leading: Icon(FontAwesomeIcons.mailBulk),
           children: <Widget>[
             ListTile(
+              key: Key('pRemain'),
               title: Text('Remaining Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -157,6 +169,7 @@ class _DrawerChildState extends State<DrawerChild> {
               },
             ),
             ListTile(
+              key: Key('pDelivered'),
               title: Text('Delivered Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -165,6 +178,7 @@ class _DrawerChildState extends State<DrawerChild> {
               },
             ),
             ListTile(
+              key: Key('pUndeliverable'),
               title: Text('Undeliverable Posts'),
               leading: Icon(Icons.arrow_forward),
               onTap: () {
@@ -175,6 +189,7 @@ class _DrawerChildState extends State<DrawerChild> {
           ],
         ),
         ListTile(
+          key: Key('googleMap'),
           title: TextWriteWidget('View Map', tSize),
           leading: Icon(FontAwesomeIcons.mapMarkedAlt),
           onTap: () {
@@ -182,6 +197,7 @@ class _DrawerChildState extends State<DrawerChild> {
           },
         ),
         ListTile(
+          key: Key('address'),
           title: TextWriteWidget('Add Address', tSize),
           leading: Icon(FontAwesomeIcons.home),
           onTap: () {
@@ -190,6 +206,7 @@ class _DrawerChildState extends State<DrawerChild> {
           },
         ),
         ListTile(
+          key: Key('logout'),
           title: TextWriteWidget('Logout', tSize),
           leading: Icon(
             Icons.logout,

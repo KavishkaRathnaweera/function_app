@@ -35,11 +35,12 @@ void main() {
         "weight": "100"
       };
       String docID = "f4252f435363wghdgdg3t3t53vdf";
-      PackagePost obj1 = PackagePost.fromJson(json, docID);
+      List<double> loc = [6.55555, 79.6666666];
+      PackagePost obj1 = PackagePost.fromJson(json, docID, loc);
       PackagePost obj2 = PackagePost(
           pid: "2021021555845",
           cost: "100",
-          loc: [],
+          loc: loc,
           recName: "kevin peter",
           recAdNum: "158/8",
           recStreet1: "2nd",

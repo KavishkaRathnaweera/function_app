@@ -29,13 +29,6 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
   late Position initLocation;
   late bool locAvailable;
 
-  // @override
-  // Future<void> initState()  {
-  //   // initLocation =
-  //   //     await LocationService.getPosition(LocationConstant.CurrentPosition);
-  //   super.initState();
-  // }
-
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
       if (postType == PostType.NormalPost) {
@@ -105,7 +98,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
       builder: (context) {
         //return Provider.value(value: myModel, child: BottomSheetCreate());
         if (type == PostType.NormalPost) {
-          return ListView(children: [
+          return ListView(key: Key('bottomSheetList'), children: [
             Container(
               margin: EdgeInsets.all(20.0),
               child: Column(
@@ -119,6 +112,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                     children: [
                       Expanded(
                         child: TextButton(
+                            key: Key('deliveredTextButton'),
                             onPressed: () async {
                               DatabaseResult result =
                                   await postItem.handleSuccessfulDelivery(
@@ -138,6 +132,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                       SizedBox(width: 20.0),
                       Expanded(
                         child: TextButton(
+                          key: Key('failedTextButton'),
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleFailedDelivery(
@@ -162,7 +157,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
             ),
           ]);
         } else if (type == PostType.RegisteredPost) {
-          return ListView(children: [
+          return ListView(key: Key('bottomSheetList'), children: [
             Container(
               margin: EdgeInsets.all(20.0),
               child: Column(
@@ -178,6 +173,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                     children: [
                       Expanded(
                         child: TextButton(
+                            key: Key('deliveredTextButton'),
                             onPressed: () async {
                               DatabaseResult result =
                                   await postItem.handleSuccessfulDelivery(
@@ -197,6 +193,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                       SizedBox(width: 20.0),
                       Expanded(
                         child: TextButton(
+                          key: Key('failedTextButton'),
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleFailedDelivery(
@@ -221,7 +218,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
             ),
           ]);
         } else if (type == PostType.Package) {
-          return ListView(children: [
+          return ListView(key: Key('bottomSheetList'), children: [
             Container(
               margin: EdgeInsets.all(20.0),
               child: Column(
@@ -237,6 +234,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                     children: [
                       Expanded(
                         child: TextButton(
+                            key: Key('deliveredTextButton'),
                             onPressed: () async {
                               DatabaseResult result =
                                   await postItem.handleSuccessfulDelivery(
@@ -256,6 +254,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                       SizedBox(width: 20.0),
                       Expanded(
                         child: TextButton(
+                          key: Key('failedTextButton'),
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleFailedDelivery(
@@ -321,6 +320,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
               itemCount: allPostList.length,
               itemBuilder: (context, index) {
                 final PostItem postItem = allPostList[index];
+                print(index);
                 return Column(
                   children: [
                     ListTile(
@@ -328,6 +328,7 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                           '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}'),
                       subtitle: Text('${postItem.getRecipientName}'),
                       trailing: Checkbox(
+                        key: Key('$index'),
                         onChanged: (bool? value) async {
                           var signature;
                           if (postType == PostType.NormalPost) {

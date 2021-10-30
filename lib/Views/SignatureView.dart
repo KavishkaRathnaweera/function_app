@@ -73,6 +73,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
                 children: [
                   Expanded(
                     child: PressButton(
+                      key: Key('acceptButton'),
                       label: 'Accept',
                       color: Colors.green,
                       iconData: Icons.check,
@@ -81,6 +82,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
                   ),
                   Expanded(
                     child: PressButton(
+                      key: Key('clearButton'),
                       label: 'Clear',
                       color: Colors.red,
                       iconData: Icons.clear,
@@ -102,11 +104,13 @@ class PressButton extends StatelessWidget {
       {required this.label,
       required this.color,
       required this.iconData,
-      required this.onpressed});
+      required this.onpressed,
+      required this.key});
   final Function onpressed;
   final Color color;
   final IconData iconData;
   final String label;
+  final Key key;
 
   @override
   Widget build(BuildContext context) {

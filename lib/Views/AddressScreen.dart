@@ -60,6 +60,7 @@ class _AddAddressState extends State<AddAddress> {
                   style: kTextFieldStyle,
                 ),
                 TextFormField(
+                  key: Key('address_key'),
                   onChanged: (value) {
                     addressNum = value;
                   },
@@ -83,6 +84,7 @@ class _AddAddressState extends State<AddAddress> {
                   style: kTextFieldStyle,
                 ),
                 TextFormField(
+                  key: Key('street1'),
                   onChanged: (value) {
                     street1 = value;
                   },
@@ -106,6 +108,7 @@ class _AddAddressState extends State<AddAddress> {
                   style: kTextFieldStyle,
                 ),
                 TextFormField(
+                  key: Key('street2'),
                   onChanged: (value) {
                     street2 = value;
                   },
@@ -126,6 +129,7 @@ class _AddAddressState extends State<AddAddress> {
                   style: kTextFieldStyle,
                 ),
                 TextFormField(
+                  key: Key('city'),
                   onChanged: (value) {
                     city = value;
                   },

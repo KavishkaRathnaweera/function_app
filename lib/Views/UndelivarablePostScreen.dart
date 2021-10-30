@@ -71,6 +71,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
         //return Provider.value(value: myModel, child: BottomSheetCreate());
         if (type == PostType.NormalPost) {
           return Container(
+            key: Key('bottomSheetList'),
             margin: EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -83,6 +84,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                   children: [
                     Expanded(
                       child: TextButton(
+                          key: Key('deliveredTextButton'),
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
@@ -106,6 +108,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
           );
         } else if (type == PostType.RegisteredPost) {
           return Container(
+            key: Key('bottomSheetList'),
             margin: EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -120,6 +123,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                   children: [
                     Expanded(
                       child: TextButton(
+                          key: Key('deliveredTextButton'),
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
@@ -143,6 +147,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
           );
         } else if (type == PostType.Package) {
           return Container(
+            key: Key('bottomSheetList'),
             margin: EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -157,6 +162,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                   children: [
                     Expanded(
                       child: TextButton(
+                          key: Key('deliveredTextButton'),
                           onPressed: () async {
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
@@ -227,6 +233,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                           '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2 != null ? postItem.getRecipientStreet2 + 'road' : ''}, ${postItem.getRecipientCity}'),
                       subtitle: Text('${postItem.getRecipientName}'),
                       trailing: Checkbox(
+                        key: Key('$index'),
                         onChanged: (bool? value) async {
                           var signature;
                           if (postType == PostType.NormalPost) {

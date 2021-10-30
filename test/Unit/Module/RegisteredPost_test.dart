@@ -31,11 +31,12 @@ void main() {
         },
       };
       String docID = "f4252f435363wghdgdg3t3t53vdf";
-      RegisteredPost obj1 = RegisteredPost.fromJson(json, docID);
+      List<double> loc = [6.55555, 79.6666666];
+      RegisteredPost obj1 = RegisteredPost.fromJson(json, docID, loc);
       RegisteredPost obj2 = RegisteredPost(
           pid: "2021021555845",
           cost: "100",
-          loc: [],
+          loc: loc,
           recName: "kevin peter",
           recAdNum: "158/8",
           recStreet1: "2nd",

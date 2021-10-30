@@ -6,6 +6,7 @@ import 'package:function_app/Module/Package.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Module/RegisteredPost.dart';
 import 'package:function_app/Services/EmailService.dart';
+import 'package:geolocator/geolocator.dart';
 
 class NetworkService {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -326,6 +327,8 @@ class NetworkService {
             false);
       }
 
+      await updateUserLocation(postRef.location);
+
       print('address added');
 
       return DatabaseResult.Success;
@@ -377,6 +380,7 @@ class NetworkService {
             false);
       }
       await EmailSender.deliveredEmailOperator(postRef);
+      await updateUserLocation(postRef.location);
       return DatabaseResult.Success;
     } catch (e) {
       if (isAdded && isDeleted) {
@@ -422,6 +426,7 @@ class NetworkService {
             false);
       }
       await EmailSender.failedEmailOperator(postRef);
+      await updateUserLocation(postRef.location);
 
       return DatabaseResult.Success;
     } catch (e) {
@@ -537,20 +542,91 @@ class NetworkService {
     return isUpdated || isAdded;
   }
 
-  Future<void> updateUserLocation() async {
-    // var uid = _auth.currentUser!.uid;
-    // CollectionReference users = _firestore.collection('Users');
-    // DocumentReference reference = users.doc('$uid');
-    // await reference
-    //     .update({
-    //   'histories': FieldValue.arrayUnion([
-    //     {'action': 'DeliverAttempted', 'date': d, 'employee': docRef}
-    //   ]),
-    //   'state': 'DeliverAttempted',
-    // })
-    //     .then((value) => isUpdated = true)
-    //     .catchError((error) => updateError = error);
-    // var data = snapshot.data() as Map;
-    // return data;
+  Future<void> updateUserLocation(location) async {
+    bool isAdded = false;
+    bool isUpdated = false;
+    var uid = _auth.currentUser!.uid;
+    final date =
+        '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}';
+    print(date);
+    var locationCol =
+        _firestore.collection('Users').doc(uid).collection('locations');
+
+    QuerySnapshot collectionSnapshot =
+        await locationCol.where('date', isEqualTo: date).get();
+    List<DocumentSnapshot> templist = collectionSnapshot.docs;
+    if (templist.isEmpty) {
+      await locationCol
+          .add({
+            "geoLocations": [
+              {
+                'location': GeoPoint(location[0], location[1]),
+                "timestamp": Timestamp.now()
+              }
+            ],
+            "date": date,
+          })
+          .then((value) => isAdded = true)
+          .catchError((error) => error);
+    } else if (templist.length == 1) {
+      DocumentReference documentReference = locationCol.doc(templist[0].id);
+      await documentReference
+          .update({
+            'geolocations': FieldValue.arrayUnion([
+              {
+                'location': GeoPoint(location[0], location[1]),
+                "timestamp": Timestamp.now()
+              }
+            ]),
+          })
+          .then((value) => isUpdated = true)
+          .catchError((error) => error);
+    } else {
+      print('Database error');
+    }
+  }
+
+  Future<DatabaseResult> changeBundleLocation(
+      bool isDestination, String barcode, Position loc) async {
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaStarted");
+    try {
+      CollectionReference transfers = _firestore.collection('Transfers');
+      DocumentSnapshot snapshot = await transfers.doc('$barcode').get();
+      var data = snapshot.data() as Map;
+      data['mails'].forEach((element) {
+        print(element);
+      });
+      if (isDestination) {
+        await Future.forEach(data['mails'], (element) async {
+          element as DocumentReference;
+          element.update({
+            'locations': FieldValue.arrayUnion([
+              {
+                'location': GeoPoint(loc.latitude, loc.longitude),
+                "timestamp": Timestamp.now()
+              }
+            ]),
+            'state': 'DestinationArrived',
+          });
+        });
+      } else {
+        await Future.forEach(data['mails'], (element) async {
+          element as DocumentReference;
+          element.update({
+            'locations': FieldValue.arrayUnion([
+              {
+                'location': GeoPoint(loc.latitude, loc.longitude),
+                "timestamp": Timestamp.now()
+              }
+            ]),
+          });
+        });
+      }
+
+      return DatabaseResult.Success;
+    } catch (e) {
+      print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaFailed");
+      return DatabaseResult.Failed;
+    }
   }
 }

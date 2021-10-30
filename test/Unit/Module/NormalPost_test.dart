@@ -32,11 +32,12 @@ void main() {
         },
       };
       String docID = "f4252f435363wghdgdg3t3t53vdf";
-      NormalPost obj1 = NormalPost.fromJson(json, docID);
+      List<double> loc = [6.55555, 79.6666666];
+      NormalPost obj1 = NormalPost.fromJson(json, docID, loc);
       NormalPost obj2 = NormalPost(
           pid: "2021021555845",
           cost: "100",
-          loc: [],
+          loc: loc,
           recName: "kevin peter",
           recAdNum: "158/8",
           recStreet1: "2nd",

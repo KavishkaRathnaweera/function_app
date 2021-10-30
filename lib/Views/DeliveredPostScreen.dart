@@ -79,6 +79,7 @@ class _DeliveredPostScreen extends State<DeliveredPostScreen> {
                 return Column(
                   children: [
                     ListTile(
+                      key: Key('$index'),
                       title: Text(
                           '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}'),
                       subtitle: Text('${postItem.getRecipientName}'),

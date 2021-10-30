@@ -11,6 +11,10 @@ import '../../Mocks.dart';
 
 class MockFirabaseAuth extends Mock implements FirebaseAuth {}
 
+class MockFirebaseUser extends Mock implements User {}
+
+class MockFirebaseResult extends Mock implements UserCredential {}
+
 void main() {
   setupFirebaseAuthMocks();
   setUpAll(() async {
@@ -24,6 +28,16 @@ void main() {
   }
 
   group('Login Screen Test', () {
+    testWidgets('Render postOffice logo', (WidgetTester tester) async {
+      await tester.pumpWidget(createWidgetForTesting(child: new LoginScreen()));
+      expect(find.byKey(Key('heroWidget')), findsOneWidget);
+    });
+    testWidgets('Render Screen title', (WidgetTester tester) async {
+      await tester.pumpWidget(createWidgetForTesting(child: new LoginScreen()));
+      await tester.pump();
+      expect(find.text('Sri Lanka Post'), findsOneWidget);
+    });
+
     testWidgets('Email and password must assign to variable',
         (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetForTesting(child: new LoginScreen()));
@@ -58,6 +72,32 @@ void main() {
       await tester.pump();
       expect(find.text('Email is invalid'), findsOneWidget);
     });
+    testWidgets('should return true when valid email and password',
+        (WidgetTester tester) async {
+      var wid = new LoginScreen();
+      var st = wid.createState();
+      var result = st.validateEmailPassword('postman@gmail.com', '11111');
+      expect(result, true);
+    });
+    testWidgets('should return false when invalid email and password',
+        (WidgetTester tester) async {
+      var wid = new LoginScreen();
+      await tester.pumpWidget(createWidgetForTesting(child: wid));
+      var st = tester.state<LoginScreenState>(find.byType(LoginScreen));
+      var result = st.validateEmailPassword('postmanil.com', '11111');
+      expect(result, false);
+    });
+    // testWidgets('Get user from the database', (WidgetTester tester) async {
+    //   var wid = new LoginScreen();
+    //   await tester.pumpWidget(createWidgetForTesting(child: wid));
+    //   await tester.enterText(
+    //       find.byKey(Key('textFieldEmail')), 'postm@gmail.com');
+    //   await tester.enterText(find.byKey(Key('textFieldPassword')), '111');
+    //   await tester.tap(find.byType(ReusableButton));
+    //   await tester.pump();
+    //   expect(find.text('Error!'), findsOneWidget);
+    //expect(result, false);
+    // });
   });
 }
 

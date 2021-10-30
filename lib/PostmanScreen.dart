@@ -15,10 +15,10 @@ class PostmanScreen extends StatefulWidget {
   static final String screenId = 'postmanScreen';
 
   @override
-  _PostmanScreenState createState() => _PostmanScreenState();
+  PostmanScreenState createState() => PostmanScreenState();
 }
 
-class _PostmanScreenState extends State<PostmanScreen> {
+class PostmanScreenState extends State<PostmanScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String date =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
@@ -38,6 +38,7 @@ class _PostmanScreenState extends State<PostmanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: Key('postmanScafKey'),
         appBar: AppBar(
           title: Text('Postman'),
         ),

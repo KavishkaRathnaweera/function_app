@@ -21,6 +21,11 @@ class DeliveryData extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  removeFromBundleList(Bundle bundle) {
+    _scannedList.remove(bundle);
+    notifyListeners();
+  }
 }
 
 /*
