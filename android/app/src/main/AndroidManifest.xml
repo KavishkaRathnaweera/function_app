@@ -16,7 +16,7 @@
         android:label="Post Office"
         android:icon="@mipmap/ic_launcher">
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCJterzzFgLjdTnIlhfJ3C7m-I_484qdNE"/>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="Your API key"/>
 
         <activity
             android:name=".MainActivity"
