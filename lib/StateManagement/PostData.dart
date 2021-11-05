@@ -216,7 +216,10 @@ class PostData extends ChangeNotifier {
 
   Set<Marker> get markers => _markers;
 
-  addMarkerRemaining(List<PostItem> postList) {
+  addMarkerRemaining(List<PostItem> postList, bool empty) {
+    if (empty) {
+      _markers.clear();
+    }
     if (postList.isNotEmpty) {
       var type;
       if (postList[0] is NormalPost) {
@@ -242,13 +245,15 @@ class PostData extends ChangeNotifier {
                 BitmapDescriptor.hueOrange),
           );
           _markers.add(markerIntance);
+          print(element.location[0]);
+          print(element.location[1]);
         }
       });
     }
-    notifyListeners();
+    // notifyListeners();
   }
 
-  addMarkerUndeliverable(List<PostItem> postList) {
+  addMarkerUndeliverable(List<PostItem> postList, bool empty) {
     if (postList.isNotEmpty) {
       var type;
       if (postList[0] is NormalPost) {
@@ -274,9 +279,10 @@ class PostData extends ChangeNotifier {
                 BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
           );
           _markers.add(markerIntance);
+          print(element.location[0]);
+          print(element.location[1]);
         }
       });
     }
-    notifyListeners();
   }
 }

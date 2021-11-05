@@ -6,6 +6,7 @@ import 'package:function_app/Services/LocationServices.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Views/SignatureView.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 import 'package:search_page/search_page.dart';
 import 'AddressNameTile.dart';
 import 'Alerts.dart';
@@ -30,6 +31,7 @@ class _SearchFunctionState extends State<SearchFunction> {
   late List<PostItem> postItems;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late bool locAvailable;
+  bool showSpinner = false;
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
@@ -115,12 +117,20 @@ class _SearchFunctionState extends State<SearchFunction> {
                   children: [
                     Expanded(
                       child: TextButton(
+                          key: Key('deliveredTextButton'),
                           onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
+                            });
+                            Navigator.of(context).pop();
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
                                     signature,
                                     _auth.currentUser!.uid,
                                     locCoordinates);
+                            setState(() {
+                              showSpinner = false;
+                            });
                             handleDatabaseResult(
                                 result, postItem, PostType.NormalPost);
                           },
@@ -134,10 +144,18 @@ class _SearchFunctionState extends State<SearchFunction> {
                     SizedBox(width: 20.0),
                     Expanded(
                       child: TextButton(
+                        key: Key('failedTextButton'),
                         onPressed: () async {
+                          setState(() {
+                            showSpinner = true;
+                          });
+                          Navigator.of(context).pop();
                           DatabaseResult result =
                               await postItem.handleFailedDelivery(
                                   _auth.currentUser!.uid, locCoordinates);
+                          setState(() {
+                            showSpinner = false;
+                          });
                           handleDBFailedDelivery(
                               result, postItem, PostType.NormalPost);
                         },
@@ -170,12 +188,20 @@ class _SearchFunctionState extends State<SearchFunction> {
                   children: [
                     Expanded(
                       child: TextButton(
+                          key: Key('deliveredTextButton'),
                           onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
+                            });
+                            Navigator.of(context).pop();
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
                                     signature,
                                     _auth.currentUser!.uid,
                                     locCoordinates);
+                            setState(() {
+                              showSpinner = false;
+                            });
                             handleDatabaseResult(
                                 result, postItem, PostType.RegisteredPost);
                           },
@@ -189,10 +215,18 @@ class _SearchFunctionState extends State<SearchFunction> {
                     SizedBox(width: 20.0),
                     Expanded(
                       child: TextButton(
+                        key: Key('failedTextButton'),
                         onPressed: () async {
+                          setState(() {
+                            showSpinner = true;
+                          });
+                          Navigator.of(context).pop();
                           DatabaseResult result =
                               await postItem.handleFailedDelivery(
                                   _auth.currentUser!.uid, locCoordinates);
+                          setState(() {
+                            showSpinner = false;
+                          });
                           handleDBFailedDelivery(
                               result, postItem, PostType.RegisteredPost);
                         },
@@ -225,12 +259,20 @@ class _SearchFunctionState extends State<SearchFunction> {
                   children: [
                     Expanded(
                       child: TextButton(
+                          key: Key('deliveredTextButton'),
                           onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
+                            });
+                            Navigator.of(context).pop();
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
                                     signature,
                                     _auth.currentUser!.uid,
                                     locCoordinates);
+                            setState(() {
+                              showSpinner = false;
+                            });
                             handleDatabaseResult(
                                 result, postItem, PostType.Package);
                           },
@@ -244,10 +286,18 @@ class _SearchFunctionState extends State<SearchFunction> {
                     SizedBox(width: 20.0),
                     Expanded(
                       child: TextButton(
+                        key: Key('failedTextButton'),
                         onPressed: () async {
+                          setState(() {
+                            showSpinner = true;
+                          });
+                          Navigator.of(context).pop();
                           DatabaseResult result =
                               await postItem.handleFailedDelivery(
                                   _auth.currentUser!.uid, locCoordinates);
+                          setState(() {
+                            showSpinner = false;
+                          });
                           handleDBFailedDelivery(
                               result, postItem, PostType.Package);
                         },
@@ -286,50 +336,56 @@ class _SearchFunctionState extends State<SearchFunction> {
           Provider.of<PostData>(context, listen: false).getPackagePostList;
     }
 
-    return FloatingActionButton(
-      tooltip: 'Search Posts',
-      onPressed: () => showSearch(
-        context: context,
-        delegate: SearchPage<PostItem>(
-          onQueryUpdate: (s) => print(s),
-          items: postItems,
-          searchLabel: 'Search Posts',
-          suggestion: Center(
-            child: Text('Filter Posts by address or name'),
-          ),
-          failure: Center(
-            child: Text('No post found :('),
-          ),
-          filter: (post) => [
-            post.getRecipientAddressNUmber,
-            post.getRecipientStreet1,
-            post.getRecipientStreet2,
-            post.getRecipientCity,
-            post.getRecipientName,
-          ],
-          builder: (post) => ListTile(
-            title: Text(
-                '${post.getRecipientAddressNUmber}, ${post.getRecipientStreet1} road,${post.getRecipientStreet2} ,${post.getRecipientCity}'),
-            subtitle: Text(post.getRecipientName),
-            trailing: Checkbox(
-              onChanged: (bool? value) async {
-                var signature;
-                if (widget.postType == PostType.NormalPost) {
-                } else if (widget.postType == PostType.RegisteredPost) {
-                  signature = await Navigator.pushNamed(
-                      context, SignatureScreen.screenId);
-                } else if (widget.postType == PostType.Package) {
-                  signature = await Navigator.pushNamed(
-                      context, SignatureScreen.screenId);
-                }
-                acceptButton(signature, widget.postType, post);
-              },
-              value: false,
+    return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        color: Colors.red.shade900,
+      ),
+      inAsyncCall: showSpinner,
+      child: FloatingActionButton(
+        tooltip: 'Search Posts',
+        onPressed: () => showSearch(
+          context: context,
+          delegate: SearchPage<PostItem>(
+            onQueryUpdate: (s) => print(s),
+            items: postItems,
+            searchLabel: 'Search Posts',
+            suggestion: Center(
+              child: Text('Filter Posts by address or name'),
+            ),
+            failure: Center(
+              child: Text('No post found :('),
+            ),
+            filter: (post) => [
+              post.getRecipientAddressNUmber,
+              post.getRecipientStreet1,
+              post.getRecipientStreet2,
+              post.getRecipientCity,
+              post.getRecipientName,
+            ],
+            builder: (post) => ListTile(
+              title: Text(
+                  '${post.getRecipientAddressNUmber}, ${post.getRecipientStreet1} road,${post.getRecipientStreet2} ,${post.getRecipientCity}'),
+              subtitle: Text(post.getRecipientName),
+              trailing: Checkbox(
+                onChanged: (bool? value) async {
+                  var signature;
+                  if (widget.postType == PostType.NormalPost) {
+                  } else if (widget.postType == PostType.RegisteredPost) {
+                    signature = await Navigator.pushNamed(
+                        context, SignatureScreen.screenId);
+                  } else if (widget.postType == PostType.Package) {
+                    signature = await Navigator.pushNamed(
+                        context, SignatureScreen.screenId);
+                  }
+                  acceptButton(signature, widget.postType, post);
+                },
+                value: false,
+              ),
             ),
           ),
         ),
+        child: Icon(Icons.search),
       ),
-      child: Icon(Icons.search),
     );
   }
 }

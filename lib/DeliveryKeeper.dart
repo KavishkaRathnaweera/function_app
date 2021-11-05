@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'Components/DrawerChildDelivery.dart';
 import 'package:function_app/Components/TextWrite.dart';
 
+import 'Constants.dart';
 import 'Views/loginScreen.dart';
 
 class DeliveryScreen extends StatefulWidget {
@@ -14,6 +15,10 @@ class DeliveryScreen extends StatefulWidget {
 
 class _DeliveryScreenState extends State<DeliveryScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String date =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .toString()
+          .substring(0, 10);
 
   @override
   void initState() {
@@ -28,6 +33,7 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: Key('deliverScafKey'),
       appBar: AppBar(
         title: Text('Delivery Log Keeper'),
       ),
@@ -37,14 +43,19 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
       body: Container(
         margin: EdgeInsets.all(25.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextWriteWidget(
-                'This is Delivery Log Keeper view.There are two main functions.',
-                20.0),
-            SizedBox(height: 10.0),
-            TextWriteWidget('1) Scan Post Packages', 15.0),
-            TextWriteWidget('2) View Scanned Packages', 15.0),
+            Container(
+              padding: EdgeInsets.all(10.0),
+              color: Colors.black12,
+              child:
+                  Center(child: TextWriteWidget('Scanning Date ${date}', 20.0)),
+            ),
+            Expanded(
+                child: Icon(
+              Icons.search,
+              size: 300,
+            ))
           ],
         ),
       ),

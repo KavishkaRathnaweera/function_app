@@ -219,7 +219,6 @@ class LoginScreenState extends State<LoginScreen> {
         }, Colors.red[900]);
       }
     } on FirebaseAuthException catch (e) {
-      print('aaaaaaaaaaa');
       if (e.code == 'user-not-found') {
         AlertBox.showMyDialog(context, 'Error!', 'User email cannot recognized',
             () {

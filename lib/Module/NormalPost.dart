@@ -101,7 +101,7 @@ class NormalPost extends PostItem {
         "timestamp": Timestamp.now(),
       };
 
-  Map<String, dynamic> toJsonPending(uid) => {
+  Map<String, dynamic> toJsonPending(uid, postOfficeLoc) => {
         "pid": pid,
         "acceptedPostoffice": acceptedPO,
         "destinationPostoffice": destinationPO,
@@ -117,6 +117,12 @@ class NormalPost extends PostItem {
           {
             "action": "Assigned",
             "employee": FirebaseFirestore.instance.collection('Users').doc(uid),
+          }
+        ],
+        "locations": [
+          {
+            "location": postOfficeLoc,
+            "timestamp": Timestamp.now(),
           }
         ],
         "state": "Assigned",

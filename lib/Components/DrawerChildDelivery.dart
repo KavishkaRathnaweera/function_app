@@ -74,17 +74,6 @@ class DrawerChildDelivery extends StatelessWidget {
           },
         ),
         ListTile(
-          title: TextWriteWidget('Scanned Items', tSize),
-          leading: Icon(
-            Icons.search,
-            size: 30.0,
-          ),
-          onTap: () {
-            Navigator.pushNamed(context, ScannedBarcode.screenId);
-            //Navigator.pop(context);
-          },
-        ),
-        ListTile(
           title: TextWriteWidget('Logout', tSize),
           leading: Icon(
             Icons.logout,

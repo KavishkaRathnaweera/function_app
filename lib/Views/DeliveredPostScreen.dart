@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:function_app/Components/Alerts.dart';
 import 'package:function_app/Components/DrawerChild.dart';
 import 'package:function_app/Module/PostItem.dart';
+import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 import 'package:provider/provider.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Components/ConstantFile.dart';
@@ -18,6 +19,7 @@ class DeliveredPostScreen extends StatefulWidget {
 class _DeliveredPostScreen extends State<DeliveredPostScreen> {
   late PostType postType;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool showSpinner = false;
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
@@ -60,44 +62,56 @@ class _DeliveredPostScreen extends State<DeliveredPostScreen> {
       drawer: Drawer(
         child: DrawerChild(),
       ),
-      body: Container(
-        margin: EdgeInsets.all(30.0),
-        child: Consumer<PostData>(
-          builder: (context, postdata, child) {
-            List<PostItem> allPostList = [];
-            if (postType == PostType.NormalPost) {
-              allPostList = postdata.getNormalPostListDelievered;
-            } else if (postType == PostType.RegisteredPost) {
-              allPostList = postdata.getRegisteredPostListDelievered;
-            } else if (postType == PostType.Package) {
-              allPostList = postdata.getPackagePostListDelivered;
-            }
-            return ListView.builder(
-              itemCount: allPostList.length,
-              itemBuilder: (context, index) {
-                final PostItem postItem = allPostList[index];
-                return Column(
-                  children: [
-                    ListTile(
-                      key: Key('$index'),
-                      title: Text(
-                          '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}'),
-                      subtitle: Text('${postItem.getRecipientName}'),
-                      trailing: TextButton(
-                        onPressed: () async {
-                          DatabaseResult result = await postItem
-                              .restorePost(_auth.currentUser!.uid);
-                          handleDatabaseResult(result, postItem, postType);
-                        },
-                        child: Text('Restore'),
+      body: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          color: Colors.red.shade900,
+        ),
+        inAsyncCall: showSpinner,
+        child: Container(
+          margin: EdgeInsets.all(30.0),
+          child: Consumer<PostData>(
+            builder: (context, postdata, child) {
+              List<PostItem> allPostList = [];
+              if (postType == PostType.NormalPost) {
+                allPostList = postdata.getNormalPostListDelievered;
+              } else if (postType == PostType.RegisteredPost) {
+                allPostList = postdata.getRegisteredPostListDelievered;
+              } else if (postType == PostType.Package) {
+                allPostList = postdata.getPackagePostListDelivered;
+              }
+              return ListView.builder(
+                itemCount: allPostList.length,
+                itemBuilder: (context, index) {
+                  final PostItem postItem = allPostList[index];
+                  return Column(
+                    children: [
+                      ListTile(
+                        key: Key('$index'),
+                        title: Text(
+                            '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2}, ${postItem.getRecipientCity}'),
+                        subtitle: Text('${postItem.getRecipientName}'),
+                        trailing: TextButton(
+                          onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
+                            });
+                            DatabaseResult result = await postItem
+                                .restorePost(_auth.currentUser!.uid);
+                            setState(() {
+                              showSpinner = false;
+                            });
+                            handleDatabaseResult(result, postItem, postType);
+                          },
+                          child: Text('Restore'),
+                        ),
                       ),
-                    ),
-                    Divider(),
-                  ],
-                );
-              },
-            );
-          },
+                      Divider(),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: SearchFunctionDelivered(

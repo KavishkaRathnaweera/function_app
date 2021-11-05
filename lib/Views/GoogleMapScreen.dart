@@ -20,7 +20,7 @@ class GoogleMapScreen extends StatefulWidget {
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late GoogleMapController mapController;
-  late LatLng latitudeLongitude = LatLng(6.927079, 79.861244);
+  late LatLng latitudeLongitude = LatLng(6.92820, 79.85797);
   late LatLng currentCordinates;
 
   void initState() {
@@ -73,23 +73,31 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
     }
   }
 
-  getMapLocation() async {
+  getMapLocation() {
+    print('Atartsssssssssssssssssssssssssssssssssssssssssssssssssss');
     //print(Provider.of<PostData>(context, listen: false).getNormalPostList);
     Provider.of<PostData>(context, listen: false).addMarkerRemaining(
-        Provider.of<PostData>(context, listen: false).getNormalPostList);
+        Provider.of<PostData>(context, listen: false).getNormalPostList, true);
     Provider.of<PostData>(context, listen: false).addMarkerRemaining(
-        Provider.of<PostData>(context, listen: false).getRegisteredPostList);
+        Provider.of<PostData>(context, listen: false).getRegisteredPostList,
+        false);
     Provider.of<PostData>(context, listen: false).addMarkerRemaining(
-        Provider.of<PostData>(context, listen: false).getPackagePostList);
+        Provider.of<PostData>(context, listen: false).getPackagePostList,
+        false);
     Provider.of<PostData>(context, listen: false).addMarkerUndeliverable(
         Provider.of<PostData>(context, listen: false)
-            .getNormalPostListUndelivereble);
+            .getNormalPostListUndelivereble,
+        true);
     Provider.of<PostData>(context, listen: false).addMarkerUndeliverable(
         Provider.of<PostData>(context, listen: false)
-            .getRegisteredPostListUndeliverable);
+            .getRegisteredPostListUndeliverable,
+        false);
     Provider.of<PostData>(context, listen: false).addMarkerUndeliverable(
         Provider.of<PostData>(context, listen: false)
-            .getPackagePostListUndeleverable);
+            .getPackagePostListUndeleverable,
+        false);
+
+    print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
   }
 
   Future<dynamic> dialogLocationError(String title, String body) {

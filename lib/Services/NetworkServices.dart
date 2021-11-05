@@ -7,6 +7,7 @@ import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Module/RegisteredPost.dart';
 import 'package:function_app/Services/EmailService.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class NetworkService {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -18,6 +19,23 @@ class NetworkService {
     CollectionReference users = _firestore.collection('Users');
     DocumentSnapshot snapshot = await users.doc('$uid').get();
     var data = snapshot.data() as Map;
+
+    try {
+      if (data['role'] == 'postman') {
+        QuerySnapshot locs =
+            await users.doc('$uid').collection('locations').get();
+        var locdetails = locs.docs;
+        if (locdetails.isEmpty) {
+          await users.doc('$uid').collection('locations').add({
+            "geoLocations": [
+              {'location': GeoPoint(0, 0), "timestamp": Timestamp.now()}
+            ],
+            "date": "0000/00/00",
+          });
+        }
+      }
+    } catch (e) {}
+
     return data;
   }
 
@@ -170,6 +188,7 @@ class NetworkService {
         return docSnapshot.data();
       }).toList();
 
+      print("startUNDel");
       await Future.forEach(docUIDMap.keys, (elem) async {
         locAddress[elem] = await getAddress(docUIDMap[elem][1],
             docUIDMap[elem][2], docUIDMap[elem][3], docUIDMap[elem][4]);
@@ -262,9 +281,11 @@ class NetworkService {
         return docSnapshot.data();
       }).toList();
 
+      print("startDel");
       await Future.forEach(docUIDMap.keys, (elem) async {
         locAddress[elem] = await getAddress(docUIDMap[elem][1],
             docUIDMap[elem][2], docUIDMap[elem][3], docUIDMap[elem][4]);
+        print(locAddress[elem]);
       });
       lis.forEach((element) {
         if (postType == PostType.NormalPost && lis.isNotEmpty) {
@@ -306,15 +327,22 @@ class NetworkService {
           FirebaseFirestore.instance.collection('PendingMails').doc(docID);
       CollectionReference users = _firestore.collection('DeliveredMails');
 
-      await users
-          .add(postRef.toJson(uid, d))
-          .then((value) => isAdded = true)
-          .catchError((error) => erroradd = error);
-      print('b');
-      await documentReference
-          .delete()
-          .then((value) => isDeleted = true)
-          .catchError((error) => errorDel = error);
+      // await users
+      //     .doc(docID)
+      //     .set(postRef.toJson(uid, d))
+      //     .then((value) => isAdded = true)
+      //     .catchError((error) => erroradd = error);
+      //
+      // print('b');
+      // await documentReference
+      //     .delete()
+      //     .then((value) => isDeleted = true)
+      //     .catchError((error) => errorDel = error);
+
+      WriteBatch writeBatch = _firestore.batch();
+      writeBatch.set(users.doc(docID), postRef.toJson(uid, d));
+      writeBatch.delete(documentReference);
+      writeBatch.commit();
 
       if (postRef.location[0] != 0.0 && updateAddress) {
         await addAddress(
@@ -334,15 +362,7 @@ class NetworkService {
       return DatabaseResult.Success;
     } catch (e) {
       print('error');
-      if (isAdded && isDeleted) {
-        return DatabaseResult.Success;
-      } else if (isAdded && !isDeleted) {
-        return DatabaseResult.OnlyAdded;
-      } else if (isAdded && isDeleted) {
-        return DatabaseResult.OnlyDelete;
-      } else {
-        return DatabaseResult.Failed;
-      }
+      return DatabaseResult.Failed;
     }
   }
 
@@ -358,18 +378,24 @@ class NetworkService {
       DocumentReference documentReference =
           FirebaseFirestore.instance.collection('PendingMails').doc(docID);
       CollectionReference users = _firestore.collection('DeliveredMails');
-      await users
-          .doc(docID)
-          .set(postRef.toJson(uid, signature, d))
-          .then((value) => isAdded = true)
-          .catchError((error) => erroradd = error);
 
-      await documentReference
-          .delete()
-          .then((value) => isDeleted = true)
-          .catchError((error) => errorDel = error);
+      // await users
+      //     .doc(docID)
+      //     .set(postRef.toJson(uid, signature, d))
+      //     .then((value) => isAdded = true)
+      //     .catchError((error) => erroradd = error);
+      //
+      // await documentReference
+      //     .delete()
+      //     .then((value) => isDeleted = true)
+      //     .catchError((error) => errorDel = error);
 
-      if (postRef.location[0] == 0.0 && updateAddress) {
+      WriteBatch writeBatch = _firestore.batch();
+      writeBatch.set(users.doc(docID), postRef.toJson(uid, signature, d));
+      writeBatch.delete(documentReference);
+      writeBatch.commit();
+
+      if (postRef.location[0] != 0.0 && updateAddress) {
         await addAddress(
             postRef.recipientAddressNUmber,
             postRef.recipientStreet1,
@@ -379,20 +405,27 @@ class NetworkService {
             postRef.location[1],
             false);
       }
+
+      await uploadImageData(signature,
+          '${postRef.recipientName}_${postRef.recipientStreet1}_${postRef.recipientStreet2}_${postRef.recipientCity}');
+
       await EmailSender.deliveredEmailOperator(postRef);
       await updateUserLocation(postRef.location);
       return DatabaseResult.Success;
     } catch (e) {
-      if (isAdded && isDeleted) {
-        return DatabaseResult.Success;
-      } else if (isAdded && !isDeleted) {
-        return DatabaseResult.OnlyAdded;
-      } else if (isAdded && isDeleted) {
-        return DatabaseResult.OnlyDelete;
-      } else {
-        return DatabaseResult.Failed;
-      }
+      return DatabaseResult.Failed;
     }
+  }
+
+  Future<void> uploadImageData(signature, fileName) async {
+    final date =
+        '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}';
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('signatures/$date/$fileName');
+    try {
+      await ref.putData(signature);
+    } catch (e) {}
   }
 
   Future<DatabaseResult> PostFailed(uid, docID, postRef, updateAddress) async {
@@ -439,39 +472,41 @@ class NetworkService {
   }
 
   Future<DatabaseResult> PostRestore(uid, docID, postRef) async {
-    bool isAdded = false;
-    bool isDeleted = true;
-    var erroradd;
-    var errorDel;
-    var initLocation;
     try {
       DocumentReference documentReference =
           _firestore.collection('DeliveredMails').doc(docID);
       CollectionReference users = _firestore.collection('PendingMails');
 
-      await users
-          .doc(docID)
-          .set(postRef.toJsonPending(uid))
-          .then((value) => isAdded = true)
-          .catchError((error) => erroradd = error);
+      CollectionReference userDetails = _firestore.collection('Users');
+      DocumentSnapshot snapshot = await userDetails.doc('$uid').get();
+      var data = snapshot.data() as Map;
 
-      await documentReference
-          .delete()
-          .then((value) => isDeleted = true)
-          .catchError((error) => errorDel = error);
+      DocumentReference postOffice = data['postOffice'];
+      DocumentSnapshot postOfficeDetails = await postOffice.get();
+      var postData = postOfficeDetails.data() as Map;
+
+      WriteBatch writeBatch = _firestore.batch();
+      writeBatch.set(
+          users.doc(docID), postRef.toJsonPending(uid, postData['location']));
+      writeBatch.delete(documentReference);
+      writeBatch.commit();
+
+      // await users
+      // O3GcOPqMqi7syxgfi18L
+      //     .doc(docID)
+      //     .set(postRef.toJsonPending(uid, postData['location']))
+      //     .then((value) => isAdded = true)
+      //     .catchError((error) => erroradd = error);
+      //
+      // await documentReference
+      //     .delete()
+      //     .then((value) => isDeleted = true)
+      //     .catchError((error) => errorDel = error);
 
       return DatabaseResult.Success;
     } catch (e) {
       print('error');
-      if (isAdded && isDeleted) {
-        return DatabaseResult.Success;
-      } else if (isAdded && !isDeleted) {
-        return DatabaseResult.OnlyAdded;
-      } else if (isAdded && isDeleted) {
-        return DatabaseResult.OnlyDelete;
-      } else {
-        return DatabaseResult.Failed;
-      }
+      return DatabaseResult.Failed;
     }
   }
 
@@ -588,7 +623,6 @@ class NetworkService {
 
   Future<DatabaseResult> changeBundleLocation(
       bool isDestination, String barcode, Position loc) async {
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaStarted");
     try {
       CollectionReference transfers = _firestore.collection('Transfers');
       DocumentSnapshot snapshot = await transfers.doc('$barcode').get();
@@ -625,7 +659,7 @@ class NetworkService {
 
       return DatabaseResult.Success;
     } catch (e) {
-      print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaFailed");
+      print("Failed");
       return DatabaseResult.Failed;
     }
   }

@@ -7,6 +7,7 @@ import 'package:function_app/Components/SignatureTile.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Services/LocationServices.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 import 'package:provider/provider.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Components/ConstantFile.dart';
@@ -24,6 +25,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
   late PostType postType;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late bool locAvailable;
+  bool showSpinner = false;
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
@@ -37,7 +39,7 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
         Provider.of<PostData>(context, listen: false)
             .removePackagePostUndeliverable(postItem);
       }
-      Navigator.pop(context);
+      // Navigator.pop(context);
       AlertBox.showMyDialog(context, 'Successful', 'Data Updated', () {
         Navigator.of(context).pop();
       }, Colors.green[900]);
@@ -86,11 +88,18 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                       child: TextButton(
                           key: Key('deliveredTextButton'),
                           onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
+                            });
+                            Navigator.of(context).pop();
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
                                     signature,
                                     _auth.currentUser!.uid,
                                     locCoordinates);
+                            setState(() {
+                              showSpinner = false;
+                            });
                             handleDatabaseResult(
                                 result, postItem, PostType.NormalPost);
                           },
@@ -125,11 +134,18 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                       child: TextButton(
                           key: Key('deliveredTextButton'),
                           onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
+                            });
+                            Navigator.of(context).pop();
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
                                     signature,
                                     _auth.currentUser!.uid,
                                     locCoordinates);
+                            setState(() {
+                              showSpinner = false;
+                            });
                             handleDatabaseResult(
                                 result, postItem, PostType.RegisteredPost);
                           },
@@ -164,11 +180,18 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                       child: TextButton(
                           key: Key('deliveredTextButton'),
                           onPressed: () async {
+                            setState(() {
+                              showSpinner = true;
+                            });
+                            Navigator.of(context).pop();
                             DatabaseResult result =
                                 await postItem.handleSuccessfulDelivery(
                                     signature,
                                     _auth.currentUser!.uid,
                                     locCoordinates);
+                            setState(() {
+                              showSpinner = false;
+                            });
                             handleDatabaseResult(
                                 result, postItem, PostType.Package);
                           },
@@ -210,55 +233,61 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
       drawer: Drawer(
         child: DrawerChild(),
       ),
-      body: Container(
-        margin: EdgeInsets.all(30.0),
-        child: Consumer<PostData>(
-          builder: (context, postdata, child) {
-            List<PostItem> allPostList = [];
-            if (postType == PostType.NormalPost) {
-              allPostList = postdata.getNormalPostListUndelivereble;
-            } else if (postType == PostType.RegisteredPost) {
-              allPostList = postdata.getRegisteredPostListUndeliverable;
-            } else if (postType == PostType.Package) {
-              allPostList = postdata.getPackagePostListUndeleverable;
-            }
-            return ListView.builder(
-              itemCount: allPostList.length,
-              itemBuilder: (context, index) {
-                final PostItem postItem = allPostList[index];
-                return Column(
-                  children: [
-                    ListTile(
-                      title: Text(
-                          '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2 != null ? postItem.getRecipientStreet2 + 'road' : ''}, ${postItem.getRecipientCity}'),
-                      subtitle: Text('${postItem.getRecipientName}'),
-                      trailing: Checkbox(
-                        key: Key('$index'),
-                        onChanged: (bool? value) async {
-                          var signature;
-                          if (postType == PostType.NormalPost) {
-                            //postdata.removeNormalPost(postItem);
-                          } else if (postType == PostType.RegisteredPost) {
-                            // postdata.removeRegisteredPost(postItem);
-                            signature = await Navigator.pushNamed(
-                                context, SignatureScreen.screenId);
-                          } else if (postType == PostType.Package) {
-                            //postdata.removepackagePost(postItem);
-                            signature = await Navigator.pushNamed(
-                                context, SignatureScreen.screenId);
-                          }
-                          acceptButtonUndeliverable(
-                              signature, postType, postItem);
-                        },
-                        value: false,
+      body: ModalProgressHUD(
+        progressIndicator: CircularProgressIndicator(
+          color: Colors.red.shade900,
+        ),
+        inAsyncCall: showSpinner,
+        child: Container(
+          margin: EdgeInsets.all(30.0),
+          child: Consumer<PostData>(
+            builder: (context, postdata, child) {
+              List<PostItem> allPostList = [];
+              if (postType == PostType.NormalPost) {
+                allPostList = postdata.getNormalPostListUndelivereble;
+              } else if (postType == PostType.RegisteredPost) {
+                allPostList = postdata.getRegisteredPostListUndeliverable;
+              } else if (postType == PostType.Package) {
+                allPostList = postdata.getPackagePostListUndeleverable;
+              }
+              return ListView.builder(
+                itemCount: allPostList.length,
+                itemBuilder: (context, index) {
+                  final PostItem postItem = allPostList[index];
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text(
+                            '${postItem.getRecipientAddressNUmber}, ${postItem.getRecipientStreet1} road, ${postItem.getRecipientStreet2 != null ? postItem.getRecipientStreet2 + 'road' : ''}, ${postItem.getRecipientCity}'),
+                        subtitle: Text('${postItem.getRecipientName}'),
+                        trailing: Checkbox(
+                          key: Key('$index'),
+                          onChanged: (bool? value) async {
+                            var signature;
+                            if (postType == PostType.NormalPost) {
+                              //postdata.removeNormalPost(postItem);
+                            } else if (postType == PostType.RegisteredPost) {
+                              // postdata.removeRegisteredPost(postItem);
+                              signature = await Navigator.pushNamed(
+                                  context, SignatureScreen.screenId);
+                            } else if (postType == PostType.Package) {
+                              //postdata.removepackagePost(postItem);
+                              signature = await Navigator.pushNamed(
+                                  context, SignatureScreen.screenId);
+                            }
+                            acceptButtonUndeliverable(
+                                signature, postType, postItem);
+                          },
+                          value: false,
+                        ),
                       ),
-                    ),
-                    Divider(),
-                  ],
-                );
-              },
-            );
-          },
+                      Divider(),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: SearchFunctionUndelivered(
