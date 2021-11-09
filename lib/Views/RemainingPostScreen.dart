@@ -389,7 +389,9 @@ class _RemainingPostScreenState extends State<RemainingPostScreen> {
                               signature = await Navigator.pushNamed(
                                   context, SignatureScreen.screenId);
                             }
-                            acceptButton(signature, postType, postItem);
+                            if (signature != null) {
+                              acceptButton(signature, postType, postItem);
+                            }
                           },
                           value: false,
                         ),

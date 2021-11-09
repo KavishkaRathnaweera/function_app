@@ -275,8 +275,10 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                               signature = await Navigator.pushNamed(
                                   context, SignatureScreen.screenId);
                             }
-                            acceptButtonUndeliverable(
-                                signature, postType, postItem);
+                            if (signature != null) {
+                              acceptButtonUndeliverable(
+                                  signature, postType, postItem);
+                            }
                           },
                           value: false,
                         ),

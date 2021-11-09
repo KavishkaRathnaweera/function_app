@@ -47,7 +47,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
           backgroundColor: Colors.black,
           leading: TextButton(
             onPressed: () {
-              // Navigator.pop(context);
+              Navigator.pop(context, null);
             },
             child: Icon(Icons.arrow_back),
           ),

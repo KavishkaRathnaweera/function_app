@@ -63,7 +63,7 @@ class NormalPost extends PostItem {
   factory NormalPost.fromJson(
           Map<dynamic, dynamic> json, String docID, locDetails) =>
       NormalPost(
-        pid: json["pid"],
+        pid: json["pid"].toString(),
         loc: locDetails,
         docID: docID,
         cost: json["cost"].toString(),
