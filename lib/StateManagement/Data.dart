@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:function_app/Module/Bundle.dart';
 import 'package:function_app/Module/User.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DeliveryData extends ChangeNotifier {
   late AppUser userDetails;

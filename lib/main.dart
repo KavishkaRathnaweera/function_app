@@ -84,6 +84,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (context) => PostData()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Functions App',
         theme: ThemeData(
 // Define the default brightness and colors.

@@ -93,7 +93,7 @@ class RegisteredPost extends PostItem {
   factory RegisteredPost.fromJson(
           Map<dynamic, dynamic> json, String docID, locDetails) =>
       RegisteredPost(
-        pid: json["pid"],
+        pid: json["pid"].toString(),
         loc: locDetails,
         docID: docID,
         cost: json["cost"].toString(),
@@ -115,7 +115,7 @@ class RegisteredPost extends PostItem {
       );
 
   Map<String, dynamic> toJson(uid, signature, day) => {
-        "pid": pid,
+        "pid": this.pid,
         "acceptedPostoffice": acceptedPO,
         "destinationPostoffice": destinationPO,
         "recipientDetails": {
@@ -148,7 +148,7 @@ class RegisteredPost extends PostItem {
       };
 
   Map<String, dynamic> toJsonPending(uid, postOfficeLoc) => {
-        "pid": pid,
+        "pid": this.pid,
         "acceptedPostoffice": acceptedPO,
         "destinationPostoffice": destinationPO,
         "recipientDetails": {
@@ -186,7 +186,7 @@ class RegisteredPost extends PostItem {
       };
 
   String toString() {
-    return 'Student: {pid: ${pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
+    return 'Student: {pid: ${this.pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
         'recStreet1 : ${recipientStreet1}, recStreet2 : ${recipientStreet2}, recCity : ${recipientCity}, ispending : ${isPending}, '
         'iscannotDeli : ${isCannotDelivered}, acceptPO : ${acceptedPO}, destiPO : ${destinationPO}, docId: ${docID} , '
         'senderEmail : ${senderEmail} , senderAdNUm : ${senderAddressNUmber}, senderStreet1 : ${senderStreet1}, senderStreet : ${senderStreet2},senderCity : ${senderCity}';

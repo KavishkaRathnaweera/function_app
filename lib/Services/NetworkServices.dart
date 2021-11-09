@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:function_app/Components/ConstantFile.dart';
@@ -314,105 +316,94 @@ class NetworkService {
 
   Future<DatabaseResult> PostDelivery(
       uid, docID, postRef, updateAddress) async {
-    print('a');
-    bool isAdded = false;
-    bool isDeleted = true;
-    var erroradd;
-    var errorDel;
-    var initLocation;
+    bool isConnected = false;
     try {
-      DateTime d = DateTime(
-          DateTime.now().year, DateTime.now().month, DateTime.now().day);
-      DocumentReference documentReference =
-          FirebaseFirestore.instance.collection('PendingMails').doc(docID);
-      CollectionReference users = _firestore.collection('DeliveredMails');
-
-      // await users
-      //     .doc(docID)
-      //     .set(postRef.toJson(uid, d))
-      //     .then((value) => isAdded = true)
-      //     .catchError((error) => erroradd = error);
-      //
-      // print('b');
-      // await documentReference
-      //     .delete()
-      //     .then((value) => isDeleted = true)
-      //     .catchError((error) => errorDel = error);
-
-      WriteBatch writeBatch = _firestore.batch();
-      writeBatch.set(users.doc(docID), postRef.toJson(uid, d));
-      writeBatch.delete(documentReference);
-      writeBatch.commit();
-
-      if (postRef.location[0] != 0.0 && updateAddress) {
-        await addAddress(
-            postRef.recipientAddressNUmber,
-            postRef.recipientStreet1,
-            postRef.recipientStreet2,
-            postRef.recipientCity,
-            postRef.location[0],
-            postRef.location[1],
-            false);
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        isConnected = true;
       }
+    } catch (e) {}
+    if (isConnected) {
+      try {
+        DateTime d = DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day);
+        DocumentReference documentReference =
+            FirebaseFirestore.instance.collection('PendingMails').doc(docID);
+        CollectionReference users = _firestore.collection('DeliveredMails');
 
-      await updateUserLocation(postRef.location);
+        WriteBatch writeBatch = _firestore.batch();
+        writeBatch.set(users.doc(docID), postRef.toJson(uid, d));
+        writeBatch.delete(documentReference);
+        writeBatch.commit();
 
-      print('address added');
+        if (postRef.location[0] != 0.0 && updateAddress) {
+          await addAddress(
+              postRef.recipientAddressNUmber,
+              postRef.recipientStreet1,
+              postRef.recipientStreet2,
+              postRef.recipientCity,
+              postRef.location[0],
+              postRef.location[1],
+              false);
+        }
 
-      return DatabaseResult.Success;
-    } catch (e) {
-      print('error');
+        await updateUserLocation(postRef.location);
+
+        print('address added');
+
+        return DatabaseResult.Success;
+      } catch (e) {
+        print('error');
+        return DatabaseResult.Failed;
+      }
+    } else {
       return DatabaseResult.Failed;
     }
   }
 
   Future<DatabaseResult> PostDeliverySignature(
       uid, docID, postRef, signature, updateAddress) async {
-    bool isAdded = false;
-    bool isDeleted = true;
-    var erroradd;
-    var errorDel;
+    bool isConnected = false;
     try {
-      DateTime d = DateTime(
-          DateTime.now().year, DateTime.now().month, DateTime.now().day);
-      DocumentReference documentReference =
-          FirebaseFirestore.instance.collection('PendingMails').doc(docID);
-      CollectionReference users = _firestore.collection('DeliveredMails');
-
-      // await users
-      //     .doc(docID)
-      //     .set(postRef.toJson(uid, signature, d))
-      //     .then((value) => isAdded = true)
-      //     .catchError((error) => erroradd = error);
-      //
-      // await documentReference
-      //     .delete()
-      //     .then((value) => isDeleted = true)
-      //     .catchError((error) => errorDel = error);
-
-      WriteBatch writeBatch = _firestore.batch();
-      writeBatch.set(users.doc(docID), postRef.toJson(uid, signature, d));
-      writeBatch.delete(documentReference);
-      writeBatch.commit();
-
-      if (postRef.location[0] != 0.0 && updateAddress) {
-        await addAddress(
-            postRef.recipientAddressNUmber,
-            postRef.recipientStreet1,
-            postRef.recipientStreet2,
-            postRef.recipientCity,
-            postRef.location[0],
-            postRef.location[1],
-            false);
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        isConnected = true;
       }
+    } catch (e) {}
+    if (isConnected) {
+      try {
+        DateTime d = DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day);
+        DocumentReference documentReference =
+            FirebaseFirestore.instance.collection('PendingMails').doc(docID);
+        CollectionReference users = _firestore.collection('DeliveredMails');
 
-      await uploadImageData(signature,
-          '${postRef.recipientName}_${postRef.recipientStreet1}_${postRef.recipientStreet2}_${postRef.recipientCity}');
+        WriteBatch writeBatch = _firestore.batch();
+        writeBatch.set(users.doc(docID), postRef.toJson(uid, signature, d));
+        writeBatch.delete(documentReference);
+        writeBatch.commit();
 
-      await EmailSender.deliveredEmailOperator(postRef);
-      await updateUserLocation(postRef.location);
-      return DatabaseResult.Success;
-    } catch (e) {
+        if (postRef.location[0] != 0.0 && updateAddress) {
+          await addAddress(
+              postRef.recipientAddressNUmber,
+              postRef.recipientStreet1,
+              postRef.recipientStreet2,
+              postRef.recipientCity,
+              postRef.location[0],
+              postRef.location[1],
+              false);
+        }
+
+        await uploadImageData(signature,
+            '${postRef.recipientName}_${postRef.recipientStreet1}_${postRef.recipientStreet2}_${postRef.recipientCity}');
+
+        await EmailSender.deliveredEmailOperator(postRef);
+        await updateUserLocation(postRef.location);
+        return DatabaseResult.Success;
+      } catch (e) {
+        return DatabaseResult.Failed;
+      }
+    } else {
       return DatabaseResult.Failed;
     }
   }
@@ -429,83 +420,105 @@ class NetworkService {
   }
 
   Future<DatabaseResult> PostFailed(uid, docID, postRef, updateAddress) async {
-    bool isUpdated = false;
-    var updateError;
+    bool isConnected = false;
     try {
-      var docRef = _firestore.collection('Users').doc(uid);
-      DocumentReference documentReference =
-          FirebaseFirestore.instance.collection('PendingMails').doc(docID);
-      DateTime d = DateTime(
-          DateTime.now().year, DateTime.now().month, DateTime.now().day);
-      await documentReference
-          .update({
-            'histories': FieldValue.arrayUnion([
-              {'action': 'DeliverAttempted', 'date': d, 'employee': docRef}
-            ]),
-            'state': 'DeliverAttempted',
-          })
-          .then((value) => isUpdated = true)
-          .catchError((error) => updateError = error);
-
-      print(postRef.location[0]);
-      if (postRef.location[0] != 0.0 && updateAddress) {
-        await addAddress(
-            postRef.recipientAddressNUmber,
-            postRef.recipientStreet1,
-            postRef.recipientStreet2,
-            postRef.recipientCity,
-            postRef.location[0],
-            postRef.location[1],
-            false);
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        isConnected = true;
       }
-      await EmailSender.failedEmailOperator(postRef);
-      await updateUserLocation(postRef.location);
+    } catch (e) {}
+    if (isConnected) {
+      bool isUpdated = false;
+      var updateError;
+      try {
+        var docRef = _firestore.collection('Users').doc(uid);
+        DocumentReference documentReference =
+            FirebaseFirestore.instance.collection('PendingMails').doc(docID);
+        DateTime d = DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day);
+        await documentReference
+            .update({
+              'histories': FieldValue.arrayUnion([
+                {'action': 'DeliverAttempted', 'date': d, 'employee': docRef}
+              ]),
+              'state': 'DeliverAttempted',
+            })
+            .then((value) => isUpdated = true)
+            .catchError((error) => updateError = error);
 
-      return DatabaseResult.Success;
-    } catch (e) {
-      if (isUpdated) {
+        print(postRef.location[0]);
+        if (postRef.location[0] != 0.0 && updateAddress) {
+          await addAddress(
+              postRef.recipientAddressNUmber,
+              postRef.recipientStreet1,
+              postRef.recipientStreet2,
+              postRef.recipientCity,
+              postRef.location[0],
+              postRef.location[1],
+              false);
+        }
+        await EmailSender.failedEmailOperator(postRef);
+        await updateUserLocation(postRef.location);
+
         return DatabaseResult.Success;
-      } else {
-        return DatabaseResult.Failed;
+      } catch (e) {
+        if (isUpdated) {
+          return DatabaseResult.Success;
+        } else {
+          return DatabaseResult.Failed;
+        }
       }
+    } else {
+      return DatabaseResult.Failed;
     }
   }
 
   Future<DatabaseResult> PostRestore(uid, docID, postRef) async {
+    bool isConnected = false;
     try {
-      DocumentReference documentReference =
-          _firestore.collection('DeliveredMails').doc(docID);
-      CollectionReference users = _firestore.collection('PendingMails');
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        isConnected = true;
+      }
+    } catch (e) {}
+    if (isConnected) {
+      try {
+        DocumentReference documentReference =
+            _firestore.collection('DeliveredMails').doc(docID);
+        CollectionReference users = _firestore.collection('PendingMails');
 
-      CollectionReference userDetails = _firestore.collection('Users');
-      DocumentSnapshot snapshot = await userDetails.doc('$uid').get();
-      var data = snapshot.data() as Map;
+        CollectionReference userDetails = _firestore.collection('Users');
+        DocumentSnapshot snapshot = await userDetails.doc('$uid').get();
+        var data = snapshot.data() as Map;
 
-      DocumentReference postOffice = data['postOffice'];
-      DocumentSnapshot postOfficeDetails = await postOffice.get();
-      var postData = postOfficeDetails.data() as Map;
+        DocumentReference postOffice = data['postOffice'];
+        DocumentSnapshot postOfficeDetails = await postOffice.get();
+        var postData = postOfficeDetails.data() as Map;
 
-      WriteBatch writeBatch = _firestore.batch();
-      writeBatch.set(
-          users.doc(docID), postRef.toJsonPending(uid, postData['location']));
-      writeBatch.delete(documentReference);
-      writeBatch.commit();
+        WriteBatch writeBatch = _firestore.batch();
+        writeBatch.set(
+            users.doc(docID), postRef.toJsonPending(uid, postData['location']));
+        writeBatch.delete(documentReference);
+        writeBatch.commit();
 
-      // await users
-      // O3GcOPqMqi7syxgfi18L
-      //     .doc(docID)
-      //     .set(postRef.toJsonPending(uid, postData['location']))
-      //     .then((value) => isAdded = true)
-      //     .catchError((error) => erroradd = error);
-      //
-      // await documentReference
-      //     .delete()
-      //     .then((value) => isDeleted = true)
-      //     .catchError((error) => errorDel = error);
+        // await users
+        // O3GcOPqMqi7syxgfi18L
+        //     .doc(docID)
+        //     .set(postRef.toJsonPending(uid, postData['location']))
+        //     .then((value) => isAdded = true)
+        //     .catchError((error) => erroradd = error);
+        //
+        // await documentReference
+        //     .delete()
+        //     .then((value) => isDeleted = true)
+        //     .catchError((error) => errorDel = error);
 
-      return DatabaseResult.Success;
-    } catch (e) {
-      print('error');
+        return DatabaseResult.Success;
+      } catch (e) {
+        print('error');
+        return DatabaseResult.Failed;
+      }
+    } else {
       return DatabaseResult.Failed;
     }
   }
@@ -536,54 +549,66 @@ class NetworkService {
 
   Future<bool> addAddress(String adnum, String street1, String street2,
       String city, double latitude, double longitude, bool update) async {
-    bool isAdded = false;
-    bool isUpdated = false;
-    var updateError;
-    var erroradd;
-    GeoPoint point = GeoPoint(latitude, longitude);
-    CollectionReference addLoc = _firestore.collection('AddressLocations');
-    var serviceCollection = addLoc
-        .where('address.addressNumber', isEqualTo: adnum)
-        .where('address.city', isEqualTo: city)
-        .where('address.street1', isEqualTo: street1)
-        .where('address.street2', isEqualTo: street2);
-
-    QuerySnapshot collectionSnapshot = await serviceCollection.get();
-    List<DocumentSnapshot> templist = collectionSnapshot.docs;
-    if (templist.isEmpty) {
-      await addLoc
-          .add({
-            "address": {
-              "addressNumber": adnum,
-              "city": city,
-              "street1": street1,
-              "street2": street2
-            },
-            "location": point,
-          })
-          .then((value) => isAdded = true)
-          .catchError((error) => erroradd = error);
-    } else if (templist.length == 1) {
-      if (update) {
-        DocumentReference documentReference = addLoc.doc(templist[0].id);
-        await documentReference
-            .update({
-              'location': point,
-            })
-            .then((value) => isUpdated = true)
-            .catchError((error) => updateError = error);
+    bool isConnected = false;
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        isConnected = true;
       }
+    } catch (e) {}
+    if (isConnected) {
+      bool isAdded = false;
+      bool isUpdated = false;
+      var updateError;
+      var erroradd;
+      GeoPoint point = GeoPoint(latitude, longitude);
+      CollectionReference addLoc = _firestore.collection('AddressLocations');
+      var serviceCollection = addLoc
+          .where('address.addressNumber', isEqualTo: adnum)
+          .where('address.city', isEqualTo: city)
+          .where('address.street1', isEqualTo: street1)
+          .where('address.street2', isEqualTo: street2);
+
+      QuerySnapshot collectionSnapshot = await serviceCollection.get();
+      List<DocumentSnapshot> templist = collectionSnapshot.docs;
+      if (templist.isEmpty) {
+        await addLoc
+            .add({
+              "address": {
+                "addressNumber": adnum,
+                "city": city,
+                "street1": street1,
+                "street2": street2
+              },
+              "location": point,
+            })
+            .then((value) => isAdded = true)
+            .catchError((error) => erroradd = error);
+      } else if (templist.length == 1) {
+        if (update) {
+          DocumentReference documentReference = addLoc.doc(templist[0].id);
+          await documentReference
+              .update({
+                'location': point,
+              })
+              .then((value) => isUpdated = true)
+              .catchError((error) => updateError = error);
+        }
+      }
+      return isUpdated || isAdded;
+    } else {
+      return false;
     }
-    return isUpdated || isAdded;
   }
 
   Future<void> updateUserLocation(location) async {
     bool isAdded = false;
     bool isUpdated = false;
     var uid = _auth.currentUser!.uid;
-    final date =
-        '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}';
-    print(date);
+    var day = DateTime.now().day < 10
+        ? '0${DateTime.now().day}'
+        : '${DateTime.now().day}';
+    final date = '${DateTime.now().year}/${DateTime.now().month}/$day';
     var locationCol =
         _firestore.collection('Users').doc(uid).collection('locations');
 
@@ -623,43 +648,54 @@ class NetworkService {
 
   Future<DatabaseResult> changeBundleLocation(
       bool isDestination, String barcode, Position loc) async {
+    bool isConnected = false;
     try {
-      CollectionReference transfers = _firestore.collection('Transfers');
-      DocumentSnapshot snapshot = await transfers.doc('$barcode').get();
-      var data = snapshot.data() as Map;
-      data['mails'].forEach((element) {
-        print(element);
-      });
-      if (isDestination) {
-        await Future.forEach(data['mails'], (element) async {
-          element as DocumentReference;
-          element.update({
-            'locations': FieldValue.arrayUnion([
-              {
-                'location': GeoPoint(loc.latitude, loc.longitude),
-                "timestamp": Timestamp.now()
-              }
-            ]),
-            'state': 'DestinationArrived',
-          });
-        });
-      } else {
-        await Future.forEach(data['mails'], (element) async {
-          element as DocumentReference;
-          element.update({
-            'locations': FieldValue.arrayUnion([
-              {
-                'location': GeoPoint(loc.latitude, loc.longitude),
-                "timestamp": Timestamp.now()
-              }
-            ]),
-          });
-        });
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        isConnected = true;
       }
+    } catch (e) {}
+    if (isConnected) {
+      try {
+        CollectionReference transfers = _firestore.collection('Transfers');
+        DocumentSnapshot snapshot = await transfers.doc('$barcode').get();
+        var data = snapshot.data() as Map;
+        data['mails'].forEach((element) {
+          print(element);
+        });
+        if (isDestination) {
+          await Future.forEach(data['mails'], (element) async {
+            element as DocumentReference;
+            element.update({
+              'locations': FieldValue.arrayUnion([
+                {
+                  'location': GeoPoint(loc.latitude, loc.longitude),
+                  "timestamp": Timestamp.now()
+                }
+              ]),
+              'state': 'DestinationArrived',
+            });
+          });
+        } else {
+          await Future.forEach(data['mails'], (element) async {
+            element as DocumentReference;
+            element.update({
+              'locations': FieldValue.arrayUnion([
+                {
+                  'location': GeoPoint(loc.latitude, loc.longitude),
+                  "timestamp": Timestamp.now()
+                }
+              ]),
+            });
+          });
+        }
 
-      return DatabaseResult.Success;
-    } catch (e) {
-      print("Failed");
+        return DatabaseResult.Success;
+      } catch (e) {
+        print("Failed");
+        return DatabaseResult.Failed;
+      }
+    } else {
       return DatabaseResult.Failed;
     }
   }

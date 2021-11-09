@@ -6,7 +6,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:function_app/StateManagement/Data.dart';
 
 import 'package:function_app/Views/BarcodeScreen.dart';
-import 'package:function_app/Views/ScannedBarcode.dart';
 import 'package:function_app/DeliveryKeeper.dart';
 import 'package:function_app/Views/loginScreen.dart';
 import 'package:provider/provider.dart';

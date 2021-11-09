@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Module/PostItem.dart';
@@ -77,7 +79,7 @@ class NormalPost extends PostItem {
       );
 
   Map<String, dynamic> toJson(uid, day) => {
-        "pid": pid,
+        "pid": this.pid,
         "acceptedPostoffice": acceptedPO,
         "destinationPostoffice": destinationPO,
         "recipientDetails": {
@@ -102,7 +104,7 @@ class NormalPost extends PostItem {
       };
 
   Map<String, dynamic> toJsonPending(uid, postOfficeLoc) => {
-        "pid": pid,
+        "pid": this.pid,
         "acceptedPostoffice": acceptedPO,
         "destinationPostoffice": destinationPO,
         "recipientDetails": {
@@ -132,7 +134,7 @@ class NormalPost extends PostItem {
       };
 
   String toString() {
-    return 'Student: {pid: ${pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
+    return 'Student: {pid: ${this.pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
         'recStreet1 : ${recipientStreet1}, recStreet2 : ${recipientStreet2}, recCity : ${recipientCity}, ispending : ${isPending}, '
         'iscannotDeli : ${isCannotDelivered}, acceptPO : ${acceptedPO}, destiPO : ${destinationPO}, docId: ${docID}}';
   }

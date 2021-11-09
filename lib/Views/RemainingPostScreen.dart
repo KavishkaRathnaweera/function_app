@@ -1,12 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:function_app/Components/AddressNameTile.dart';
 import 'package:function_app/Components/Alerts.dart';
-import 'package:function_app/Components/CurrentLocation.dart';
 import 'package:function_app/Components/DrawerChild.dart';
 import 'package:function_app/Components/SignatureTile.dart';
-import 'package:function_app/Components/TextWrite.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Services/LocationServices.dart';
 import 'package:geolocator/geolocator.dart';

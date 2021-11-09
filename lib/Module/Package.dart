@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Module/PostItem.dart';
@@ -74,9 +76,9 @@ class PackagePost extends PostItem {
   factory PackagePost.fromJson(
           Map<dynamic, dynamic> json, String docID, locDetails) =>
       PackagePost(
-        pid: json["pid"],
+        pid: json["pid"].toString(),
         loc: locDetails,
-        docID: docID,
+        docID: docID.toString(),
         cost: json["cost"].toString(),
         acceptedPO: json["acceptedPostoffice"],
         destinationPO: json["destinationPostoffice"],
@@ -98,7 +100,7 @@ class PackagePost extends PostItem {
       );
 
   Map<String, dynamic> toJson(uid, signature, day) => {
-        "pid": pid,
+        "pid": this.pid,
         "acceptedPostoffice": acceptedPO,
         "destinationPostoffice": destinationPO,
         "recipientDetails": {
@@ -133,7 +135,7 @@ class PackagePost extends PostItem {
       };
 
   Map<String, dynamic> toJsonPending(uid, postOfficeLoc) => {
-        "pid": pid,
+        "pid": this.pid,
         "acceptedPostoffice": acceptedPO,
         "destinationPostoffice": destinationPO,
         "recipientDetails": {
@@ -173,7 +175,7 @@ class PackagePost extends PostItem {
       };
 
   String toString() {
-    return 'Student: {pid: ${pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
+    return 'Student: {pid: ${this.pid}, cost: ${cost}, loc : ${location}, recName : ${recipientName}, recAddNum : ${recipientAddressNUmber}, '
         'recStreet1 : ${recipientStreet1},recStreet2: ${recipientStreet2}, recCity : ${recipientCity}, recEmail : ${receiverEmail} ,ispending : ${isPending}, '
         'iscannotDeli : ${isCannotDelivered}, acceptPO : ${acceptedPO}, destiPO : ${destinationPO}, docId: ${docID} , '
         'senderEmail : ${senderEmail} , senderAdNUm : ${senderAddressNUmber}, senderStreet1 : ${senderStreet1}, senderStreet2 : ${senderStreet2}'
@@ -194,7 +196,6 @@ class PackagePost extends PostItem {
   handleSuccessfulDelivery(signature, uid, locPosition) async {
     if (location[0] == 0.0) {
       setLocation([locPosition.latitude, locPosition.longitude]);
-      // TODO: add signature function
       return await NetworkService()
           .PostDeliverySignature(uid, docID, this, signature, true);
     } else {
@@ -207,3 +208,18 @@ class PackagePost extends PostItem {
     return await NetworkService().PostRestore(uid, docID, this);
   }
 }
+
+/*
+ bool isConnected = false;
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        isConnected = true;
+      }
+    } catch (e) {}
+    if (isConnected) {
+
+    } else {
+      return DatabaseResult.Failed;
+    }
+ */

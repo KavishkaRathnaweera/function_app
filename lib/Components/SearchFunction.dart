@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:function_app/Module/NormalPost.dart';
 import 'package:function_app/Module/PostItem.dart';
 import 'package:function_app/Services/LocationServices.dart';
 import 'package:function_app/StateManagement/PostData.dart';
@@ -15,7 +14,6 @@ import 'package:provider/provider.dart';
 import 'package:function_app/Views/RemainingPostScreen.dart';
 
 import 'SignatureTile.dart';
-import 'TextWrite.dart';
 
 class SearchFunction extends StatefulWidget {
   SearchFunction({

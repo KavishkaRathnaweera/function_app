@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'Components/DrawerChildDelivery.dart';
 import 'package:function_app/Components/TextWrite.dart';
 
-import 'Constants.dart';
 import 'Views/loginScreen.dart';
 
 class DeliveryScreen extends StatefulWidget {

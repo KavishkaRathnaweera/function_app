@@ -9,7 +9,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:function_app/Services/LocationServices.dart';
 import 'package:function_app/Components/ConstantFile.dart';
 import 'package:function_app/Views/loginScreen.dart';
-import 'package:function_app/StateManagement/Data.dart';
 
 class GoogleMapScreen extends StatefulWidget {
   static final String screenId = 'servGoogleMapScreen';
