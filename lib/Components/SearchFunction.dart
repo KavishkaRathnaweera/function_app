@@ -81,7 +81,246 @@ class _SearchFunctionState extends State<SearchFunction> {
     }
   }
 
-  acceptButton(signature, type, PostItem postItem) async {
+  // void aacceptButton(signature, type, PostItem postItem) async {
+  //   var locCoordinates = await LocationService.getCurrentPosition();
+  //   if (locCoordinates == null) {
+  //     locAvailable = false;
+  //     locCoordinates = Position(
+  //         longitude: 0.0,
+  //         latitude: 0.0,
+  //         timestamp: DateTime(2),
+  //         accuracy: 0.0,
+  //         altitude: 0.0,
+  //         heading: 0.0,
+  //         speed: 0.0,
+  //         speedAccuracy: 0.0);
+  //   } else {
+  //     locAvailable = true;
+  //   }
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       //return Provider.value(value: myModel, child: BottomSheetCreate());
+  //       if (type == PostType.NormalPost) {
+  //         return Container(
+  //           margin: EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.start,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               AddressNameTile(postItem: postItem),
+  //               SizedBox(height: 10.0),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   Expanded(
+  //                     child: TextButton(
+  //                         key: Key('deliveredTextButton'),
+  //                         onPressed: () async {
+  //                           setState(() {
+  //                             showSpinner = true;
+  //                           });
+  //                           Navigator.of(context).pop();
+  //                           DatabaseResult result =
+  //                               await postItem.handleSuccessfulDelivery(
+  //                                   signature,
+  //                                   _auth.currentUser!.uid,
+  //                                   locCoordinates);
+  //                           setState(() {
+  //                             showSpinner = false;
+  //                           });
+  //                           handleDatabaseResult(
+  //                               result, postItem, PostType.NormalPost);
+  //                         },
+  //                         style: ButtonStyle(
+  //                           backgroundColor:
+  //                               MaterialStateProperty.all<Color>(Colors.black),
+  //                         ),
+  //                         child: Text('Delivered',
+  //                             style: TextStyle(color: Colors.green))),
+  //                   ),
+  //                   SizedBox(width: 20.0),
+  //                   Expanded(
+  //                     child: TextButton(
+  //                       key: Key('failedTextButton'),
+  //                       onPressed: () async {
+  //                         setState(() {
+  //                           showSpinner = true;
+  //                         });
+  //                         Navigator.of(context).pop();
+  //                         DatabaseResult result =
+  //                             await postItem.handleFailedDelivery(
+  //                                 _auth.currentUser!.uid, locCoordinates);
+  //                         setState(() {
+  //                           showSpinner = false;
+  //                         });
+  //                         handleDBFailedDelivery(
+  //                             result, postItem, PostType.NormalPost);
+  //                       },
+  //                       child:
+  //                           Text('Failed', style: TextStyle(color: Colors.red)),
+  //                       style: ButtonStyle(
+  //                         backgroundColor:
+  //                             MaterialStateProperty.all<Color>(Colors.black),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       } else if (type == PostType.RegisteredPost) {
+  //         return Container(
+  //           margin: EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.start,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               AddressNameTile(postItem: postItem),
+  //               SignatureTile(signature: signature),
+  //               Divider(),
+  //               SizedBox(height: 20.0),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   Expanded(
+  //                     child: TextButton(
+  //                         key: Key('deliveredTextButton'),
+  //                         onPressed: () async {
+  //                           setState(() {
+  //                             showSpinner = true;
+  //                           });
+  //                           Navigator.of(context).pop();
+  //                           DatabaseResult result =
+  //                               await postItem.handleSuccessfulDelivery(
+  //                                   signature,
+  //                                   _auth.currentUser!.uid,
+  //                                   locCoordinates);
+  //                           setState(() {
+  //                             showSpinner = false;
+  //                           });
+  //                           handleDatabaseResult(
+  //                               result, postItem, PostType.RegisteredPost);
+  //                         },
+  //                         style: ButtonStyle(
+  //                           backgroundColor:
+  //                               MaterialStateProperty.all<Color>(Colors.black),
+  //                         ),
+  //                         child: Text('Delivered',
+  //                             style: TextStyle(color: Colors.green))),
+  //                   ),
+  //                   SizedBox(width: 20.0),
+  //                   Expanded(
+  //                     child: TextButton(
+  //                       key: Key('failedTextButton'),
+  //                       onPressed: () async {
+  //                         setState(() {
+  //                           showSpinner = true;
+  //                         });
+  //                         Navigator.of(context).pop();
+  //                         DatabaseResult result =
+  //                             await postItem.handleFailedDelivery(
+  //                                 _auth.currentUser!.uid, locCoordinates);
+  //                         setState(() {
+  //                           showSpinner = false;
+  //                         });
+  //                         handleDBFailedDelivery(
+  //                             result, postItem, PostType.RegisteredPost);
+  //                       },
+  //                       child:
+  //                           Text('Failed', style: TextStyle(color: Colors.red)),
+  //                       style: ButtonStyle(
+  //                         backgroundColor:
+  //                             MaterialStateProperty.all<Color>(Colors.black),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       } else if (type == PostType.Package) {
+  //         return Container(
+  //           margin: EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.start,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               AddressNameTile(postItem: postItem),
+  //               SignatureTile(signature: signature),
+  //               Divider(),
+  //               SizedBox(height: 20.0),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   Expanded(
+  //                     child: TextButton(
+  //                         key: Key('deliveredTextButton'),
+  //                         onPressed: () async {
+  //                           setState(() {
+  //                             showSpinner = true;
+  //                           });
+  //                           Navigator.of(context).pop();
+  //                           DatabaseResult result =
+  //                               await postItem.handleSuccessfulDelivery(
+  //                                   signature,
+  //                                   _auth.currentUser!.uid,
+  //                                   locCoordinates);
+  //                           setState(() {
+  //                             showSpinner = false;
+  //                           });
+  //                           handleDatabaseResult(
+  //                               result, postItem, PostType.Package);
+  //                         },
+  //                         style: ButtonStyle(
+  //                           backgroundColor:
+  //                               MaterialStateProperty.all<Color>(Colors.black),
+  //                         ),
+  //                         child: Text('Delivered',
+  //                             style: TextStyle(color: Colors.green))),
+  //                   ),
+  //                   SizedBox(width: 20.0),
+  //                   Expanded(
+  //                     child: TextButton(
+  //                       key: Key('failedTextButton'),
+  //                       onPressed: () async {
+  //                         setState(() {
+  //                           showSpinner = true;
+  //                         });
+  //                         Navigator.of(context).pop();
+  //                         DatabaseResult result =
+  //                             await postItem.handleFailedDelivery(
+  //                                 _auth.currentUser!.uid, locCoordinates);
+  //                         setState(() {
+  //                           showSpinner = false;
+  //                         });
+  //                         handleDBFailedDelivery(
+  //                             result, postItem, PostType.Package);
+  //                       },
+  //                       child:
+  //                           Text('Failed', style: TextStyle(color: Colors.red)),
+  //                       style: ButtonStyle(
+  //                         backgroundColor:
+  //                             MaterialStateProperty.all<Color>(Colors.black),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       } else {
+  //         return Column();
+  //       }
+  //     },
+  //     //isScrollControlled: true,
+  //   );
+  // }
+
+  void acceptButton(signature, type, PostItem postItem) async {
     var locCoordinates = await LocationService.getCurrentPosition();
     if (locCoordinates == null) {
       locAvailable = false;
@@ -97,221 +336,234 @@ class _SearchFunctionState extends State<SearchFunction> {
     } else {
       locAvailable = true;
     }
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
         //return Provider.value(value: myModel, child: BottomSheetCreate());
         if (type == PostType.NormalPost) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SizedBox(height: 10.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                          key: Key('deliveredTextButton'),
+          return ListView(key: Key('bottomSheetList'), children: [
+            Container(
+              margin: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AddressNameTile(postItem: postItem),
+                  SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                            key: Key('deliveredTextButton'),
+                            onPressed: () async {
+                              setState(() {
+                                showSpinner = true;
+                              });
+                              Navigator.of(context).pop();
+                              DatabaseResult result =
+                                  await postItem.handleSuccessfulDelivery(
+                                      signature,
+                                      _auth.currentUser!.uid,
+                                      locCoordinates);
+                              setState(() {
+                                showSpinner = false;
+                              });
+                              handleDatabaseResult(
+                                  result, postItem, PostType.NormalPost);
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                            ),
+                            child: Text('Delivered',
+                                style: TextStyle(color: Colors.green))),
+                      ),
+                      SizedBox(width: 20.0),
+                      Expanded(
+                        child: TextButton(
+                          key: Key('failedTextButton'),
                           onPressed: () async {
                             setState(() {
                               showSpinner = true;
                             });
                             Navigator.of(context).pop();
                             DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
+                                await postItem.handleFailedDelivery(
+                                    _auth.currentUser!.uid, locCoordinates);
                             setState(() {
                               showSpinner = false;
                             });
-                            handleDatabaseResult(
+                            handleDBFailedDelivery(
                                 result, postItem, PostType.NormalPost);
                           },
+                          child: Text('Failed',
+                              style: TextStyle(color: Colors.red)),
                           style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.all<Color>(Colors.black),
                           ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        key: Key('failedTextButton'),
-                        onPressed: () async {
-                          setState(() {
-                            showSpinner = true;
-                          });
-                          Navigator.of(context).pop();
-                          DatabaseResult result =
-                              await postItem.handleFailedDelivery(
-                                  _auth.currentUser!.uid, locCoordinates);
-                          setState(() {
-                            showSpinner = false;
-                          });
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.NormalPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  LocationTile(locAvailable: locAvailable),
+                ],
+              ),
             ),
-          );
+          ]);
         } else if (type == PostType.RegisteredPost) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SignatureTile(signature: signature),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                          key: Key('deliveredTextButton'),
+          return ListView(key: Key('bottomSheetList'), children: [
+            Container(
+              margin: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AddressNameTile(postItem: postItem),
+                  SignatureTile(signature: signature),
+                  Divider(),
+                  SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                            key: Key('deliveredTextButton'),
+                            onPressed: () async {
+                              setState(() {
+                                showSpinner = true;
+                              });
+                              Navigator.of(context).pop();
+                              DatabaseResult result =
+                                  await postItem.handleSuccessfulDelivery(
+                                      signature,
+                                      _auth.currentUser!.uid,
+                                      locCoordinates);
+                              setState(() {
+                                showSpinner = false;
+                              });
+                              handleDatabaseResult(
+                                  result, postItem, PostType.RegisteredPost);
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                            ),
+                            child: Text('Delivered',
+                                style: TextStyle(color: Colors.green))),
+                      ),
+                      SizedBox(width: 20.0),
+                      Expanded(
+                        child: TextButton(
+                          key: Key('failedTextButton'),
                           onPressed: () async {
                             setState(() {
                               showSpinner = true;
                             });
                             Navigator.of(context).pop();
                             DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
+                                await postItem.handleFailedDelivery(
+                                    _auth.currentUser!.uid, locCoordinates);
                             setState(() {
                               showSpinner = false;
                             });
-                            handleDatabaseResult(
+                            handleDBFailedDelivery(
                                 result, postItem, PostType.RegisteredPost);
                           },
+                          child: Text('Failed',
+                              style: TextStyle(color: Colors.red)),
                           style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.all<Color>(Colors.black),
                           ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        key: Key('failedTextButton'),
-                        onPressed: () async {
-                          setState(() {
-                            showSpinner = true;
-                          });
-                          Navigator.of(context).pop();
-                          DatabaseResult result =
-                              await postItem.handleFailedDelivery(
-                                  _auth.currentUser!.uid, locCoordinates);
-                          setState(() {
-                            showSpinner = false;
-                          });
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.RegisteredPost);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  LocationTile(locAvailable: locAvailable),
+                ],
+              ),
             ),
-          );
+          ]);
         } else if (type == PostType.Package) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SignatureTile(signature: signature),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                          key: Key('deliveredTextButton'),
+          return ListView(key: Key('bottomSheetList'), children: [
+            Container(
+              margin: EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AddressNameTile(postItem: postItem),
+                  SignatureTile(signature: signature),
+                  Divider(),
+                  SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                            key: Key('deliveredTextButton'),
+                            onPressed: () async {
+                              setState(() {
+                                showSpinner = true;
+                              });
+                              Navigator.of(context).pop();
+                              DatabaseResult result =
+                                  await postItem.handleSuccessfulDelivery(
+                                      signature,
+                                      _auth.currentUser!.uid,
+                                      locCoordinates);
+                              setState(() {
+                                showSpinner = false;
+                              });
+                              handleDatabaseResult(
+                                  result, postItem, PostType.Package);
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                            ),
+                            child: Text('Delivered',
+                                style: TextStyle(color: Colors.green))),
+                      ),
+                      SizedBox(width: 20.0),
+                      Expanded(
+                        child: TextButton(
+                          key: Key('failedTextButton'),
                           onPressed: () async {
                             setState(() {
                               showSpinner = true;
                             });
                             Navigator.of(context).pop();
                             DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
+                                await postItem.handleFailedDelivery(
+                                    _auth.currentUser!.uid, locCoordinates);
                             setState(() {
                               showSpinner = false;
                             });
-                            handleDatabaseResult(
+                            handleDBFailedDelivery(
                                 result, postItem, PostType.Package);
                           },
+                          child: Text('Failed',
+                              style: TextStyle(color: Colors.red)),
                           style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.all<Color>(Colors.black),
                           ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
-                    ),
-                    SizedBox(width: 20.0),
-                    Expanded(
-                      child: TextButton(
-                        key: Key('failedTextButton'),
-                        onPressed: () async {
-                          setState(() {
-                            showSpinner = true;
-                          });
-                          Navigator.of(context).pop();
-                          DatabaseResult result =
-                              await postItem.handleFailedDelivery(
-                                  _auth.currentUser!.uid, locCoordinates);
-                          setState(() {
-                            showSpinner = false;
-                          });
-                          handleDBFailedDelivery(
-                              result, postItem, PostType.Package);
-                        },
-                        child:
-                            Text('Failed', style: TextStyle(color: Colors.red)),
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  LocationTile(locAvailable: locAvailable),
+                ],
+              ),
             ),
-          );
+          ]);
         } else {
           return Column();
         }
@@ -362,12 +614,13 @@ class _SearchFunctionState extends State<SearchFunction> {
             ],
             builder: (post) => ListTile(
               title: Text(
-                  '${post.getRecipientAddressNUmber}, ${post.getRecipientStreet1} road,${post.getRecipientStreet2} ,${post.getRecipientCity}'),
+                  '${post.getRecipientAddressNUmber}, ${post.getRecipientStreet1} road,${post.getRecipientStreet2} ${post.getRecipientCity}'),
               subtitle: Text(post.getRecipientName),
               trailing: Checkbox(
                 onChanged: (bool? value) async {
                   var signature;
                   if (widget.postType == PostType.NormalPost) {
+                    signature = null;
                   } else if (widget.postType == PostType.RegisteredPost) {
                     signature = await Navigator.pushNamed(
                         context, SignatureScreen.screenId);
@@ -375,7 +628,10 @@ class _SearchFunctionState extends State<SearchFunction> {
                     signature = await Navigator.pushNamed(
                         context, SignatureScreen.screenId);
                   }
-                  acceptButton(signature, widget.postType, post);
+                  if (signature != null ||
+                      widget.postType == PostType.NormalPost) {
+                    acceptButton(signature, widget.postType, post);
+                  }
                 },
                 value: false,
               ),

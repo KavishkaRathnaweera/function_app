@@ -72,140 +72,155 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
       builder: (context) {
         //return Provider.value(value: myModel, child: BottomSheetCreate());
         if (type == PostType.NormalPost) {
-          return Container(
-            key: Key('bottomSheetList'),
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SizedBox(height: 10.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          return ListView(
+            children: [
+              Container(
+                key: Key('bottomSheetList'),
+                margin: EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                          key: Key('deliveredTextButton'),
-                          onPressed: () async {
-                            setState(() {
-                              showSpinner = true;
-                            });
-                            Navigator.of(context).pop();
-                            DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
-                            setState(() {
-                              showSpinner = false;
-                            });
-                            handleDatabaseResult(
-                                result, postItem, PostType.NormalPost);
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.black),
-                          ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
+                    AddressNameTile(postItem: postItem),
+                    SizedBox(height: 10.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                              key: Key('deliveredTextButton'),
+                              onPressed: () async {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                Navigator.of(context).pop();
+                                DatabaseResult result =
+                                    await postItem.handleSuccessfulDelivery(
+                                        signature,
+                                        _auth.currentUser!.uid,
+                                        locCoordinates);
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                handleDatabaseResult(
+                                    result, postItem, PostType.NormalPost);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                              ),
+                              child: Text('Delivered',
+                                  style: TextStyle(color: Colors.green))),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         } else if (type == PostType.RegisteredPost) {
-          return Container(
-            key: Key('bottomSheetList'),
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SignatureTile(signature: signature),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          return ListView(
+            children: [
+              Container(
+                key: Key('bottomSheetList'),
+                margin: EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                          key: Key('deliveredTextButton'),
-                          onPressed: () async {
-                            setState(() {
-                              showSpinner = true;
-                            });
-                            Navigator.of(context).pop();
-                            DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
-                            setState(() {
-                              showSpinner = false;
-                            });
-                            handleDatabaseResult(
-                                result, postItem, PostType.RegisteredPost);
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.black),
-                          ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
+                    AddressNameTile(postItem: postItem),
+                    SignatureTile(signature: signature),
+                    Divider(),
+                    SizedBox(height: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                              key: Key('deliveredTextButton'),
+                              onPressed: () async {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                Navigator.of(context).pop();
+                                DatabaseResult result =
+                                    await postItem.handleSuccessfulDelivery(
+                                        signature,
+                                        _auth.currentUser!.uid,
+                                        locCoordinates);
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                handleDatabaseResult(
+                                    result, postItem, PostType.RegisteredPost);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                              ),
+                              child: Text('Delivered',
+                                  style: TextStyle(color: Colors.green))),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         } else if (type == PostType.Package) {
-          return Container(
-            key: Key('bottomSheetList'),
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SignatureTile(signature: signature),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          return ListView(
+            children: [
+              Container(
+                key: Key('bottomSheetList'),
+                margin: EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                          key: Key('deliveredTextButton'),
-                          onPressed: () async {
-                            setState(() {
-                              showSpinner = true;
-                            });
-                            Navigator.of(context).pop();
-                            DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
-                            setState(() {
-                              showSpinner = false;
-                            });
-                            handleDatabaseResult(
-                                result, postItem, PostType.Package);
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.black),
-                          ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
+                    AddressNameTile(postItem: postItem),
+                    SignatureTile(signature: signature),
+                    Divider(),
+                    SizedBox(height: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                              key: Key('deliveredTextButton'),
+                              onPressed: () async {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                Navigator.of(context).pop();
+                                DatabaseResult result =
+                                    await postItem.handleSuccessfulDelivery(
+                                        signature,
+                                        _auth.currentUser!.uid,
+                                        locCoordinates);
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                handleDatabaseResult(
+                                    result, postItem, PostType.Package);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                              ),
+                              child: Text('Delivered',
+                                  style: TextStyle(color: Colors.green))),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         } else {
           return Column();
@@ -275,7 +290,8 @@ class _UndeliverablePostScreen extends State<UndeliverablePostScreen> {
                               signature = await Navigator.pushNamed(
                                   context, SignatureScreen.screenId);
                             }
-                            if (signature != null) {
+                            if (signature != null ||
+                                postType == PostType.NormalPost) {
                               acceptButtonUndeliverable(
                                   signature, postType, postItem);
                             }

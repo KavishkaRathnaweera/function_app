@@ -5,6 +5,7 @@ import 'package:function_app/Services/LocationServices.dart';
 import 'package:function_app/StateManagement/PostData.dart';
 import 'package:function_app/Views/SignatureView.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 import 'package:search_page/search_page.dart';
 import 'AddressNameTile.dart';
 import 'Alerts.dart';
@@ -27,6 +28,7 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
   late List<PostItem> postItems;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late bool locAvailable;
+  bool showSpinner = false;
 
   void handleDatabaseResult(result, postItem, postType) {
     if (result == DatabaseResult.Success) {
@@ -53,7 +55,144 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
     }
   }
 
-  acceptButton(signature, type, PostItem postItem) async {
+  // aacceptButton(signature, type, PostItem postItem) async {
+  //   var locCoordinates = await LocationService.getCurrentPosition();
+  //   if (locCoordinates == null) {
+  //     locAvailable = false;
+  //     locCoordinates = Position(
+  //         longitude: 0.0,
+  //         latitude: 0.0,
+  //         timestamp: DateTime(2),
+  //         accuracy: 0.0,
+  //         altitude: 0.0,
+  //         heading: 0.0,
+  //         speed: 0.0,
+  //         speedAccuracy: 0.0);
+  //   } else {
+  //     locAvailable = true;
+  //   }
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       //return Provider.value(value: myModel, child: BottomSheetCreate());
+  //       if (type == PostType.NormalPost) {
+  //         return Container(
+  //           margin: EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.start,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               AddressNameTile(postItem: postItem),
+  //               SizedBox(height: 10.0),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   Expanded(
+  //                     child: TextButton(
+  //                         onPressed: () async {
+  //                           DatabaseResult result =
+  //                               await postItem.handleSuccessfulDelivery(
+  //                                   signature,
+  //                                   _auth.currentUser!.uid,
+  //                                   locCoordinates);
+  //                           handleDatabaseResult(
+  //                               result, postItem, PostType.NormalPost);
+  //                         },
+  //                         style: ButtonStyle(
+  //                           backgroundColor:
+  //                               MaterialStateProperty.all<Color>(Colors.black),
+  //                         ),
+  //                         child: Text('Delivered',
+  //                             style: TextStyle(color: Colors.green))),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       } else if (type == PostType.RegisteredPost) {
+  //         return Container(
+  //           margin: EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.start,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               AddressNameTile(postItem: postItem),
+  //               SignatureTile(signature: signature),
+  //               Divider(),
+  //               SizedBox(height: 20.0),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   Expanded(
+  //                     child: TextButton(
+  //                         onPressed: () async {
+  //                           DatabaseResult result =
+  //                               await postItem.handleSuccessfulDelivery(
+  //                                   signature,
+  //                                   _auth.currentUser!.uid,
+  //                                   locCoordinates);
+  //                           handleDatabaseResult(
+  //                               result, postItem, PostType.NormalPost);
+  //                         },
+  //                         style: ButtonStyle(
+  //                           backgroundColor:
+  //                               MaterialStateProperty.all<Color>(Colors.black),
+  //                         ),
+  //                         child: Text('Delivered',
+  //                             style: TextStyle(color: Colors.green))),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       } else if (type == PostType.Package) {
+  //         return Container(
+  //           margin: EdgeInsets.all(20.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.start,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               AddressNameTile(postItem: postItem),
+  //               SignatureTile(signature: signature),
+  //               Divider(),
+  //               SizedBox(height: 20.0),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                 children: [
+  //                   Expanded(
+  //                     child: TextButton(
+  //                         onPressed: () async {
+  //                           DatabaseResult result =
+  //                               await postItem.handleSuccessfulDelivery(
+  //                                   signature,
+  //                                   _auth.currentUser!.uid,
+  //                                   locCoordinates);
+  //                           handleDatabaseResult(
+  //                               result, postItem, PostType.NormalPost);
+  //                         },
+  //                         style: ButtonStyle(
+  //                           backgroundColor:
+  //                               MaterialStateProperty.all<Color>(Colors.black),
+  //                         ),
+  //                         child: Text('Delivered',
+  //                             style: TextStyle(color: Colors.green))),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       } else {
+  //         return Column();
+  //       }
+  //     },
+  //     //isScrollControlled: true,
+  //   );
+  // }
+
+  void acceptButton(signature, type, PostItem postItem) async {
     var locCoordinates = await LocationService.getCurrentPosition();
     if (locCoordinates == null) {
       locAvailable = false;
@@ -74,113 +213,155 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
       builder: (context) {
         //return Provider.value(value: myModel, child: BottomSheetCreate());
         if (type == PostType.NormalPost) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SizedBox(height: 10.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          return ListView(
+            children: [
+              Container(
+                key: Key('bottomSheetList'),
+                margin: EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                          onPressed: () async {
-                            DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
-                            handleDatabaseResult(
-                                result, postItem, PostType.NormalPost);
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.black),
-                          ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
+                    AddressNameTile(postItem: postItem),
+                    SizedBox(height: 10.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                              key: Key('deliveredTextButton'),
+                              onPressed: () async {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                Navigator.of(context).pop();
+                                DatabaseResult result =
+                                    await postItem.handleSuccessfulDelivery(
+                                        signature,
+                                        _auth.currentUser!.uid,
+                                        locCoordinates);
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                handleDatabaseResult(
+                                    result, postItem, PostType.NormalPost);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                              ),
+                              child: Text('Delivered',
+                                  style: TextStyle(color: Colors.green))),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         } else if (type == PostType.RegisteredPost) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SignatureTile(signature: signature),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          return ListView(
+            children: [
+              Container(
+                key: Key('bottomSheetList'),
+                margin: EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                          onPressed: () async {
-                            DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
-                            handleDatabaseResult(
-                                result, postItem, PostType.NormalPost);
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.black),
-                          ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
+                    AddressNameTile(postItem: postItem),
+                    SignatureTile(signature: signature),
+                    Divider(),
+                    SizedBox(height: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                              key: Key('deliveredTextButton'),
+                              onPressed: () async {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                Navigator.of(context).pop();
+                                DatabaseResult result =
+                                    await postItem.handleSuccessfulDelivery(
+                                        signature,
+                                        _auth.currentUser!.uid,
+                                        locCoordinates);
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                handleDatabaseResult(
+                                    result, postItem, PostType.RegisteredPost);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                              ),
+                              child: Text('Delivered',
+                                  style: TextStyle(color: Colors.green))),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         } else if (type == PostType.Package) {
-          return Container(
-            margin: EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AddressNameTile(postItem: postItem),
-                SignatureTile(signature: signature),
-                Divider(),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          return ListView(
+            children: [
+              Container(
+                key: Key('bottomSheetList'),
+                margin: EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextButton(
-                          onPressed: () async {
-                            DatabaseResult result =
-                                await postItem.handleSuccessfulDelivery(
-                                    signature,
-                                    _auth.currentUser!.uid,
-                                    locCoordinates);
-                            handleDatabaseResult(
-                                result, postItem, PostType.NormalPost);
-                          },
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.black),
-                          ),
-                          child: Text('Delivered',
-                              style: TextStyle(color: Colors.green))),
+                    AddressNameTile(postItem: postItem),
+                    SignatureTile(signature: signature),
+                    Divider(),
+                    SizedBox(height: 20.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                              key: Key('deliveredTextButton'),
+                              onPressed: () async {
+                                setState(() {
+                                  showSpinner = true;
+                                });
+                                Navigator.of(context).pop();
+                                DatabaseResult result =
+                                    await postItem.handleSuccessfulDelivery(
+                                        signature,
+                                        _auth.currentUser!.uid,
+                                        locCoordinates);
+                                setState(() {
+                                  showSpinner = false;
+                                });
+                                handleDatabaseResult(
+                                    result, postItem, PostType.Package);
+                              },
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.black),
+                              ),
+                              child: Text('Delivered',
+                                  style: TextStyle(color: Colors.green))),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         } else {
           return Column();
@@ -204,50 +385,60 @@ class _SearchFunctionUndelivered extends State<SearchFunctionUndelivered> {
           Provider.of<PostData>(context, listen: false).getPackagePostList;
     }
 
-    return FloatingActionButton(
-      tooltip: 'Search Posts',
-      onPressed: () => showSearch(
-        context: context,
-        delegate: SearchPage<PostItem>(
-          onQueryUpdate: (s) => print(s),
-          items: postItems,
-          searchLabel: 'Search Posts',
-          suggestion: Center(
-            child: Text('Filter Posts by address or name'),
-          ),
-          failure: Center(
-            child: Text('No post found :('),
-          ),
-          filter: (post) => [
-            post.getRecipientAddressNUmber,
-            post.getRecipientStreet1,
-            post.getRecipientStreet2,
-            post.getRecipientCity,
-            post.getRecipientName,
-          ],
-          builder: (post) => ListTile(
-            title: Text(
-                '${post.getRecipientAddressNUmber}, ${post.getRecipientStreet1} road,${post.getRecipientStreet2} ,${post.getRecipientCity}'),
-            subtitle: Text(post.getRecipientName),
-            trailing: Checkbox(
-              onChanged: (bool? value) async {
-                var signature;
-                if (widget.postType == PostType.NormalPost) {
-                } else if (widget.postType == PostType.RegisteredPost) {
-                  signature = await Navigator.pushNamed(
-                      context, SignatureScreen.screenId);
-                } else if (widget.postType == PostType.Package) {
-                  signature = await Navigator.pushNamed(
-                      context, SignatureScreen.screenId);
-                }
-                acceptButton(signature, widget.postType, post);
-              },
-              value: false,
+    return ModalProgressHUD(
+      progressIndicator: CircularProgressIndicator(
+        color: Colors.red.shade900,
+      ),
+      inAsyncCall: showSpinner,
+      child: FloatingActionButton(
+        tooltip: 'Search Posts',
+        onPressed: () => showSearch(
+          context: context,
+          delegate: SearchPage<PostItem>(
+            onQueryUpdate: (s) => print(s),
+            items: postItems,
+            searchLabel: 'Search Posts',
+            suggestion: Center(
+              child: Text('Filter Posts by address or name'),
+            ),
+            failure: Center(
+              child: Text('No post found :('),
+            ),
+            filter: (post) => [
+              post.getRecipientAddressNUmber,
+              post.getRecipientStreet1,
+              post.getRecipientStreet2,
+              post.getRecipientCity,
+              post.getRecipientName,
+            ],
+            builder: (post) => ListTile(
+              title: Text(
+                  '${post.getRecipientAddressNUmber}, ${post.getRecipientStreet1} road,${post.getRecipientStreet2} ${post.getRecipientCity}'),
+              subtitle: Text(post.getRecipientName),
+              trailing: Checkbox(
+                onChanged: (bool? value) async {
+                  var signature;
+                  if (widget.postType == PostType.NormalPost) {
+                    signature = null;
+                  } else if (widget.postType == PostType.RegisteredPost) {
+                    signature = await Navigator.pushNamed(
+                        context, SignatureScreen.screenId);
+                  } else if (widget.postType == PostType.Package) {
+                    signature = await Navigator.pushNamed(
+                        context, SignatureScreen.screenId);
+                  }
+                  if (signature != null ||
+                      widget.postType == PostType.NormalPost) {
+                    acceptButton(signature, widget.postType, post);
+                  }
+                },
+                value: false,
+              ),
             ),
           ),
         ),
+        child: Icon(Icons.search),
       ),
-      child: Icon(Icons.search),
     );
   }
 }
