@@ -501,18 +501,6 @@ class NetworkService {
         writeBatch.delete(documentReference);
         writeBatch.commit();
 
-        // await users
-        // O3GcOPqMqi7syxgfi18L
-        //     .doc(docID)
-        //     .set(postRef.toJsonPending(uid, postData['location']))
-        //     .then((value) => isAdded = true)
-        //     .catchError((error) => erroradd = error);
-        //
-        // await documentReference
-        //     .delete()
-        //     .then((value) => isDeleted = true)
-        //     .catchError((error) => errorDel = error);
-
         return DatabaseResult.Success;
       } catch (e) {
         print('error');
@@ -632,7 +620,7 @@ class NetworkService {
       DocumentReference documentReference = locationCol.doc(templist[0].id);
       await documentReference
           .update({
-            'geolocations': FieldValue.arrayUnion([
+            'geoLocations': FieldValue.arrayUnion([
               {
                 'location': GeoPoint(location[0], location[1]),
                 "timestamp": Timestamp.now()
